@@ -65,7 +65,8 @@ __main	PROC
 	; Set Output Resistors for BPIOB to no pull up no pull down
     LDR r0, =GPIOB_BASE
     LDR r1, [r0, #GPIO_PUPDR]
-    BIC r1, r1, #0x000000CC;   resistors to no pull up no pull down for PB 2,3,6,7
+    LDR r2, =0xF0F0 ; Immediate cannot be stored - must load into r2 and use that to BIC
+	BIC r1, r1, r2;		sets 2, 3, 6, 7 to pull up/pull down
     STR r1, [r0, #GPIO_PUPDR]
 	
 
@@ -120,7 +121,7 @@ moveRight PROC
 	
 	; Step 2
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
+	ORR r1, r1, #0x44 ; IS THIS SUPPOSED TO BE 24 OR 44??
 	STR r1, [r0, #GPIO_ODR]
 	
 	; Step 3
@@ -147,7 +148,7 @@ moveLeft PROC
 	
 	; Step 1 (2 CCW)
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
+	ORR r1, r1, #0x44 ; IS THIS SUPPOSED TO BE 24 OR 44??
 	STR r1, [r0, #GPIO_ODR]
 	
 	; Step 2 (1 CCW)
