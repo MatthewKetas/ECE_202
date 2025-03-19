@@ -26,6 +26,8 @@
 	ENTRY			
 				
 __main	PROC
+
+	BL System_Clock_Init ; Initialize the clock at the start of the program
 	
 	;	Enable clocks for GPIOC, GPIOB//;	Enable clocks for GPIOA, GPIOB
 	LDR r0, =RCC_BASE				; starts at the address of the RCC_BASE MODULE
@@ -48,8 +50,10 @@ __main	PROC
 	; Set GPIOB pins 2, 3, 6, 7 as output pins
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_MODER]
-	LDR r2, =0x5050 ; Immediate cannot be stored - must load into r2 and use that to BIC
+	LDR r2, =0xF0F0 ; Immediate cannot be stored - must load into r2 and use that to BIC
 	BIC r1, r1, r2;		sets 2, 3, 6, 7 to output
+	LDR r2, =0x5050 ; Immediate cannot be stored - must load into r2 and use that to ORR
+	ORR r1, r1, r2 ; ORR to set the pins to output
 	STR r1, [r0, #GPIO_MODER]
 	
 	; Set Output Type for GPIOB
