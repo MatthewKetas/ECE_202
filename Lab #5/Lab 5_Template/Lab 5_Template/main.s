@@ -113,27 +113,28 @@ moveRight PROC
 	BIC r1, r1, #0xFF ; Clear
 	ORR r1, r1, #0x84 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
+ 	BL delay
 	
 	; Step 2
 	BIC r1, r1, #0xFF
 	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 3
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 4
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x88
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+ 
+	BX LR 	
 	ENDP
-		
-		
 		
 		
 moveLeft PROC
@@ -145,32 +146,33 @@ moveLeft PROC
 	BIC r1, r1, #0xFF
 	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 2 (4 CW)
 	BIC r1, r1, #0xFF ; Clear
 	ORR r1, r1, #0x88 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
-	
+	BL delay
+ 
 	; Step 3 (1 CW)
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x84
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+
 	; Step 4 (2 CW)
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+ 
+	BX LR 	
 	ENDP
-		
-		
 		
 
 delay	PROC
 	; Delay for software debouncing
-	LDR	r2, =0x9999
+	LDR	r2, =0x9999				;tune this for speeds maybe too slow
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop
