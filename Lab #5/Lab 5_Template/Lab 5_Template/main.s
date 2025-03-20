@@ -116,7 +116,7 @@ moveRight PROC
 	
 	; Step 2
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
 	
 	; Step 3
@@ -141,24 +141,24 @@ moveLeft PROC
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_ODR]
 	
-	; Step 1 (2 CCW)
+	; Step 1 (3 CW)
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
+	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
 	
-	; Step 2 (1 CCW)
+	; Step 2 (4 CW)
 	BIC r1, r1, #0xFF ; Clear
-	ORR r1, r1, #0x84 ; Set
+	ORR r1, r1, #0x88 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
 	
-	; Step 3 (4 CCW)
+	; Step 3 (1 CW)
 	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x88
+	ORR r1, r1, #0x84
 	STR r1, [r0, #GPIO_ODR]
 	
-	; Step 4 (3 CCW)
+	; Step 4 (2 CW)
 	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x48
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
 	
 	BX LR 
