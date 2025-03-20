@@ -44,7 +44,7 @@ __main	PROC
 	; Set GPIOC pin 13 to no pull up no pull down
 	LDR r0, =GPIOC_BASE
 	LDR r1, [r0, #GPIO_PUPDR]
-	BIC r1, r1, #0x0C000000;		sets pin 13 to input
+	BIC r1, r1, #0x0C000000;		sets pin 13 to 
 	STR r1, [r0, #GPIO_PUPDR]			
 	
 	; Set GPIOB pins 2, 3, 6, 7 as output pins
@@ -113,69 +113,76 @@ moveRight PROC
 	; Loading the GPIOB Output Register
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_ODR]
+	PUSH{LR} ; Push the LR before all of the calls to the delay function
+
 	
 	; Step 1
 	BIC r1, r1, #0xFF ; Clear
 	ORR r1, r1, #0x84 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
+ 	BL delay
 	
 	; Step 2
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x44 ; IS THIS SUPPOSED TO BE 24 OR 44??
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 3
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 4
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x88
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+ 
+ 	POP{LR} ; Pop the pushed address before returning to the branch 
+	BX LR 	
 	ENDP
-		
-		
 		
 		
 moveLeft PROC
 	; Loading the GPIOB Output Register
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_ODR]
+	PUSH{LR} ; Push the LR before all of the calls to the delay function
 	
-	; Step 1 (2 CCW)
+	; Step 1 (3 CW)
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x44 ; IS THIS SUPPOSED TO BE 24 OR 44??
-	STR r1, [r0, #GPIO_ODR]
-	
-	; Step 2 (1 CCW)
-	BIC r1, r1, #0xFF ; Clear
-	ORR r1, r1, #0x84 ; Set
-	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
-	
-	; Step 3 (4 CCW)
-	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x88
-	STR r1, [r0, #GPIO_ODR]
-	
-	; Step 4 (3 CCW)
-	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+ 
+	; Step 2 (4 CW)
+	BIC r1, r1, #0xFF ; Clear
+	ORR r1, r1, #0x88 ; Set
+	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
+	BL delay
+ 
+	; Step 3 (1 CW)
+	BIC r1, r1, #0xFF;
+	ORR r1, r1, #0x84
+	STR r1, [r0, #GPIO_ODR]
+	BL delay
+
+	; Step 4 (2 CW)	
+	BIC r1, r1, #0xFF;
+	ORR r1, r1, #0x44
+	STR r1, [r0, #GPIO_ODR]
+	BL delay
+
+	POP{LR} ; Pop the pushed address before returning to the branch 
+	BX LR 	
 	ENDP
-		
-		
 		
 
 delay	PROC
 	; Delay for software debouncing
-	LDR	r2, =0x9999
+	LDR	r2, =0x9999				;tune this for speeds maybe too slow
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop

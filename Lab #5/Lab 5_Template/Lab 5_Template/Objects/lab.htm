@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\lab.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\lab.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Wed Mar 19 19:04:52 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Wed Mar 19 23:20:02 2025
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -470,16 +470,22 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[5c]"></a>moveRight</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[5c]"></a>moveRight</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+</UL>
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[5d]"></a>moveLeft</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[5d]"></a>moveLeft</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+</UL>
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
 <P><STRONG><a name="[5e]"></a>delay</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveLeft
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveRight
 </UL>
 <P>
 <H3>
