@@ -26,6 +26,8 @@
 	ENTRY			
 				
 __main	PROC
+
+	BL System_Clock_Init ; Initialize the clock at the start of the program
 	
 	;	Enable clocks for GPIOC, GPIOB//;	Enable clocks for GPIOA, GPIOB
 	LDR r0, =RCC_BASE				; starts at the address of the RCC_BASE MODULE
@@ -42,14 +44,16 @@ __main	PROC
 	; Set GPIOC pin 13 to no pull up no pull down
 	LDR r0, =GPIOC_BASE
 	LDR r1, [r0, #GPIO_PUPDR]
-	BIC r1, r1, #0x0C000000;		sets pin 13 to input
+	BIC r1, r1, #0x0C000000;		sets pin 13 to 
 	STR r1, [r0, #GPIO_PUPDR]			
 	
 	; Set GPIOB pins 2, 3, 6, 7 as output pins
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_MODER]
-	LDR r2, =0x5050 ; Immediate cannot be stored - must load into r2 and use that to BIC
+	LDR r2, =0xF0F0 ; Immediate cannot be stored - must load into r2 and use that to BIC
 	BIC r1, r1, r2;		sets 2, 3, 6, 7 to output
+	LDR r2, =0x5050 ; Immediate cannot be stored - must load into r2 and use that to ORR
+	ORR r1, r1, r2 ; ORR to set the pins to output
 	STR r1, [r0, #GPIO_MODER]
 	
 	; Set Output Type for GPIOB
@@ -61,7 +65,8 @@ __main	PROC
 	; Set Output Resistors for BPIOB to no pull up no pull down
     LDR r0, =GPIOB_BASE
     LDR r1, [r0, #GPIO_PUPDR]
-    BIC r1, r1, #0x000000CC;   resistors to no pull up no pull down for PB 2,3,6,7
+    LDR r2, =0xF0F0 ; Immediate cannot be stored - must load into r2 and use that to BIC
+	BIC r1, r1, r2;		sets 2, 3, 6, 7 to pull up/pull down
     STR r1, [r0, #GPIO_PUPDR]
 	
 
@@ -76,24 +81,23 @@ check_loop
 	BIC r1, r1, #0xFFFFDFFF ; Isolate pin 13
 	CMP r1, #0x2000 ; Checking to see if the button is active low - if matches with this button is not pressed
 	BEQ check_loop ; Keep checking for a button press
-	MOVNE r4, #1650 ; For loop index 
+	MOVNE r4, #414 ; For loop index 
 	BNE swiper_loop ; Button was pressed
 	
 	;starts swiping and checks when the swipping function is done
 swiper_loop
+	BL delay
 	CMP r4, #0
 	BEQ check_loop
 	SUB r4, r4, #1
-	LDR r5, =825
+	LDR r5, =207
 	CMP r4, r5
-	BLE move_right
-	BGT move_left
+	BLE move_left
+	BGT move_right
 move_left
-	BL delay
 	BL moveLeft
 	B swiper_loop
 move_right
-	BL delay
 	BL moveRight
 	B swiper_loop
 	
@@ -108,69 +112,76 @@ moveRight PROC
 	; Loading the GPIOB Output Register
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_ODR]
+	PUSH{LR} ; Push the LR before all of the calls to the delay function
+
 	
 	; Step 1
 	BIC r1, r1, #0xFF ; Clear
 	ORR r1, r1, #0x84 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
+ 	BL delay
 	
 	; Step 2
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 3
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x48
 	STR r1, [r0, #GPIO_ODR]
-	
+	BL delay
+ 
 	; Step 4
 	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x88
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+ 
+ 	POP{LR} ; Pop the pushed address before returning to the branch 
+	BX LR 	
 	ENDP
-		
-		
 		
 		
 moveLeft PROC
 	; Loading the GPIOB Output Register
 	LDR r0, =GPIOB_BASE
 	LDR r1, [r0, #GPIO_ODR]
+	PUSH{LR} ; Push the LR before all of the calls to the delay function
 	
-	; Step 1 (2 CCW)
+	; Step 1 (3 CW)
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x24
-	STR r1, [r0, #GPIO_ODR]
-	
-	; Step 2 (1 CCW)
-	BIC r1, r1, #0xFF ; Clear
-	ORR r1, r1, #0x84 ; Set
-	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
-	
-	; Step 3 (4 CCW)
-	BIC r1, r1, #0xFF;
 	ORR r1, r1, #0x88
 	STR r1, [r0, #GPIO_ODR]
-	
-	; Step 4 (3 CCW)
+	BL delay
+ 
+	; Step 2 (4 CW)
+	BIC r1, r1, #0xFF ; Clear
+	ORR r1, r1, #0x48 ; Set
+	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
+	BL delay
+ 
+	; Step 3 (1 CW)
 	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x48
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
-	
-	BX LR 
-	
+	BL delay
+
+	; Step 4 (2 CW)	
+	BIC r1, r1, #0xFF;
+	ORR r1, r1, #0x84
+	STR r1, [r0, #GPIO_ODR]
+	BL delay
+
+	POP{LR} ; Pop the pushed address before returning to the branch 
+	BX LR 	
 	ENDP
-		
-		
 		
 
 delay	PROC
 	; Delay for software debouncing
-	LDR	r2, =0x9999
+	LDR	r2, =0x9AAA				;tune this for speeds maybe too slow
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop

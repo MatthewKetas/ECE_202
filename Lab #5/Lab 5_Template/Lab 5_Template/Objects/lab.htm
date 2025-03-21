@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\lab.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\lab.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Fri Mar 14 15:29:41 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Fri Mar 21 12:58:04 2025
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -12,7 +12,7 @@ Call chain for Maximum Stack Depth:</H3>
 <H3>
 Functions with no stack information
 </H3><UL>
- <LI><a href="#[5f]">__user_initial_stackheap</a>
+ <LI><a href="#[60]">__user_initial_stackheap</a>
 </UL>
 </UL>
 <P>
@@ -443,22 +443,25 @@ Global Symbols
 <P><STRONG><a name="[a]"></a>WWDG_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32l476xx.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
 </UL>
-<P><STRONG><a name="[5f]"></a>__user_initial_stackheap</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, startup_stm32l476xx.o(.text), UNUSED)
+<P><STRONG><a name="[60]"></a>__user_initial_stackheap</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, startup_stm32l476xx.o(.text), UNUSED)
 
-<P><STRONG><a name="[60]"></a>__use_two_region_memory</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[61]"></a>__use_two_region_memory</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[61]"></a>__rt_heap_escrow$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[62]"></a>__rt_heap_escrow$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[62]"></a>__rt_heap_expand$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[63]"></a>__rt_heap_expand$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[63]"></a>System_Clock_Init</STRONG> (Thumb, 284 bytes, Stack size 0 bytes, sysclock.o(.text.System_Clock_Init), UNUSED)
+<P><STRONG><a name="[5f]"></a>System_Clock_Init</STRONG> (Thumb, 284 bytes, Stack size 0 bytes, sysclock.o(.text.System_Clock_Init))
+<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
 
 <P><STRONG><a name="[64]"></a>UART2_Init</STRONG> (Thumb, 228 bytes, Stack size 0 bytes, uart.o(.text.UART2_Init), UNUSED)
 
 <P><STRONG><a name="[65]"></a>USART2_Write</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, uart.o(.text.USART2_Write), UNUSED)
 
-<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 128 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 140 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Clock_Init
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveLeft
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveRight
 </UL>
@@ -467,16 +470,22 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[5c]"></a>moveRight</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[5c]"></a>moveRight</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+</UL>
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[5d]"></a>moveLeft</STRONG> (Thumb, 46 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[5d]"></a>moveLeft</STRONG> (Thumb, 68 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
+</UL>
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
 <P><STRONG><a name="[5e]"></a>delay</STRONG> (Thumb, 10 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveLeft
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;moveRight
 </UL>
 <P>
 <H3>
