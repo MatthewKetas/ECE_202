@@ -81,24 +81,23 @@ check_loop
 	BIC r1, r1, #0xFFFFDFFF ; Isolate pin 13
 	CMP r1, #0x2000 ; Checking to see if the button is active low - if matches with this button is not pressed
 	BEQ check_loop ; Keep checking for a button press
-	MOVNE r4, #1650 ; For loop index 
+	MOVNE r4, #414 ; For loop index 
 	BNE swiper_loop ; Button was pressed
 	
 	;starts swiping and checks when the swipping function is done
 swiper_loop
+	BL delay
 	CMP r4, #0
 	BEQ check_loop
 	SUB r4, r4, #1
-	LDR r5, =825
+	LDR r5, =207
 	CMP r4, r5
-	BLE move_right
-	BGT move_left
+	BLE move_left
+	BGT move_right
 move_left
-	BL delay
 	BL moveLeft
 	B swiper_loop
 move_right
-	BL delay
 	BL moveRight
 	B swiper_loop
 	
@@ -153,25 +152,25 @@ moveLeft PROC
 	
 	; Step 1 (3 CW)
 	BIC r1, r1, #0xFF
-	ORR r1, r1, #0x48
+	ORR r1, r1, #0x88
 	STR r1, [r0, #GPIO_ODR]
 	BL delay
  
 	; Step 2 (4 CW)
 	BIC r1, r1, #0xFF ; Clear
-	ORR r1, r1, #0x88 ; Set
+	ORR r1, r1, #0x48 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
 	BL delay
  
 	; Step 3 (1 CW)
 	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x84
+	ORR r1, r1, #0x44
 	STR r1, [r0, #GPIO_ODR]
 	BL delay
 
 	; Step 4 (2 CW)	
 	BIC r1, r1, #0xFF;
-	ORR r1, r1, #0x44
+	ORR r1, r1, #0x84
 	STR r1, [r0, #GPIO_ODR]
 	BL delay
 
@@ -182,7 +181,7 @@ moveLeft PROC
 
 delay	PROC
 	; Delay for software debouncing
-	LDR	r2, =0x9999				;tune this for speeds maybe too slow
+	LDR	r2, =0x9AAA				;tune this for speeds maybe too slow
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop
