@@ -31,13 +31,22 @@ void DisplayString(char* message){
 
 void SysTick_Handler(void){
 
-////////////////////////////////////////////////
+//////////////////////////////////////////////// 
 //USER CODE GOES HERE///////////////////////////		
 //USER CODE GOES HERE///////////////////////////
 //USER CODE GOES HERE///////////////////////////
 //USER CODE GOES HERE///////////////////////////
 ////////////////////////////////////////////////
 	
+}
+
+
+
+// Function that initializes starting value for countdown timer
+void SysTick_Initialize(uint32_t miliseconds){ 
+		RTC->WPR |= 0xCA;
+		RTC->WPR |= 0x53;
+		
 }
 	
 
@@ -60,6 +69,10 @@ int main(void){
 
 	NVIC_SetPriority(SysTick_IRQn, 1);		// Set Priority to 1
 	NVIC_EnableIRQ(SysTick_IRQn);					// Enable EXTI0_1 interrupt in NVIC
+		
+	uint32_t miliseconds;
+	SysTick_Initialize(miliseconds);
+	
   
 		
   ////////////////////////////////////////////////
