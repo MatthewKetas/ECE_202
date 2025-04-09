@@ -35,7 +35,8 @@ __main	PROC
 ;;;;;;;;;;;; YOUR CODE GOES HERE	;;;;;;;;;;;;;;;;;;;
 ;; setting up gpio ports B and C
 
-
+;KEYPAD SETUP
+;-------------------------------------------------------------------------------------------------------------------------
 	LDR r0, =RCC_BASE				; starts at the address of the RCC_BASE MODULE
 	LDR r1, [r0, #RCC_AHB2ENR]		; offsets to the address of the AHB2ENR reg which controlls the gpio clocks
 	ORR r1, r1, #0x00000006			;mask to enable gpio port B and C
@@ -77,6 +78,12 @@ __main	PROC
 	BIC r1, r1, #0xFF
 	ORR r1, r1, #0x55
 	STR r1, [r0, #GPIO_PUPDR]
+	
+	
+; MOTOR SETUP --------------------------------------------------------------------------------------------------------------
+
+
+
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
 
