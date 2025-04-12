@@ -222,10 +222,11 @@ Stop
 ;Branch to from main
 Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
+	push {LR}
 	BL Close_door
 	
 moving_train_loop
-	push{LR}
+	
 	
     CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
     BEQ moving_train_loop_end 	; If at station, break out of loop
