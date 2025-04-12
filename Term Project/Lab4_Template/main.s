@@ -145,9 +145,9 @@ __main	PROC
 
     ; Enabling rising edge trigger for EXTI_13
     LDR r0, =EXTI_BASE ; Loading EXTI base address        
-    LDR r1, [r0, #EXTI_RTSR1] ; Load rising trigger register onto r1      
+    LDR r1, [r0, #EXTI_FTSR1] ; Load rising trigger register onto r1      
     ORR r1, r1, #0x2000 ; Set bit 13 to 1 
-    STR r1, [r0, #EXTI_RTSR1] ; Write back to rising trigger register
+    STR r1, [r0, #EXTI_FTSR1] ; Write back to rising trigger register
 
        
     ; GOOD STEP 3: may need to find write permission and check EXTI_in table spot 40
