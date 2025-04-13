@@ -170,6 +170,7 @@ __main	PROC
   ; STR r1, [r0, #0x328];
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
+    LTORG  ; Inserted LTORG to ensure literal pool is within range
 
 	
 	MOV r11, #0 ;intilize the door to 0 angle
@@ -677,8 +678,8 @@ EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and 
 	BNE no_station_pressed
 
 station_pressed
-BL Move_Train
-B end_interrupt
+	BL Move_Train
+	B end_interrupt
 
 no_station_pressed
 	CMP r0, #11 ; Emergency stop - display message - TO BE EDITED IN FUTURE
@@ -687,7 +688,10 @@ end_interrupt
 	POP{LR}
 	BX LR
 	ENDP
-					
+		
+	LTORG  ; Inserted LTORG to handle any remaining literal references
+block
+
 	ALIGN			
 
 	AREA myData, DATA, READWRITE
