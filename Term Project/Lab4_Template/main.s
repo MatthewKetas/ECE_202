@@ -472,7 +472,7 @@ seven_seg_C PROC
 
 ; Returns button 0-9 (* = 10 AND # = 11) - only returns once a button has been pressed, it remains in the main loop otherwise
 identifyButton	PROC
-	PUSH{LR, r5, r6, r8, r9, r10, r11} ; Push all of the registers that are utilized here
+	PUSH{LR, r3, r5, r6, r8, r9, r10, r11} ; Push all of the registers that are utilized here
 
 loop ; Beginning of constant loop
 	; Pull all rows low
@@ -589,14 +589,13 @@ displaykey
 	MOV r1, #1    ; Second argument
 	BL USART2_Write
 	POP{r2}
-	POP{LR, r5, r6, r8, r9, r10, r11}
+	POP{LR, r3, r5, r6, r8, r9, r10, r11}
 	MOV r0, r2 ; Moving the result from r0 to r2
 	BX LR		; after displaying a key returns to start
 	ENDP		
 
 ; END OF IDENTIFY BUTTON PROCESS -------------------------------------------------------------------------------------------
 	
-
 delay	PROC
 	PUSH{LR}
 	; Delay for software debouncing
@@ -608,8 +607,6 @@ delayloop
 	BX LR
 	
 	ENDP
-
-
 
 ; RETURNS Pin 1-3 as HIGH depending on voltage
 checkCols PROC
@@ -623,7 +620,6 @@ checkCols PROC
 	BX LR 
 	
 	ENDP
-
 
 ; RETURNS 1 if the row test is positive and 0 if it is negative
 checkRow PROC
@@ -639,7 +635,6 @@ checkRow PROC
 	; DELAY 1
 	BL delay
 	
-	
 	; TEST COL AGAIN
 	BL checkCols
 	MOV r3, r0	;value of test row is in r3 now
@@ -647,6 +642,48 @@ checkRow PROC
 	MOVEQ r0, #0 ; Return 0 if no button is pressed
 	MOVNE r0, #1 ; Return 1 for a button is being pressed 
 	
+	POP{LR}
+	BX LR
+	ENDP
+
+
+; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
+EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
+	PUSH {LR}
+
+	; Check the pending register
+	LDR r0, =EXTI_BASE
+	LDR r1, [r0, #EXTI_PR1]
+	AND r1, r1, #0x2000
+	CMP r1, #0x2000
+	BNE end_interrupt
+
+	; Clear the pending register
+	LDR r0, =EXTI_BASE
+	MOV r1, #0x2000
+	STR r1, [r0, #EXTI_PR1]
+
+	; Now carry out the rest of the code
+	BL identifyButton ; R0 will have the button code in it from 0-11 now - refer to above documentation
+	CMP r0, #1 ; Immediate move to station A
+	MOVEQ r3, #0
+	BEQ station_pressed
+	CMP r0, #2 ; Immediate move to station B
+	MOVEQ r3, #1536
+	BEQ station_pressed
+	CMP r0, #3 ; Immediate move to station C
+	MOVEQ r3, #3072
+	BEQ station_pressed
+	BNE no_station_pressed
+
+station_pressed
+BL Move_Train
+B end_interrupt
+
+no_station_pressed
+	CMP r0, #11 ; Emergency stop - display message - TO BE EDITED IN FUTURE
+
+end_interrupt
 	POP{LR}
 	BX LR
 	ENDP
