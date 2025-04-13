@@ -127,16 +127,24 @@ __main	PROC
 ; SETTING UP EXTERNAL INTERRUPT ; Using SYSCFG register to enable EXTI_13
 	
 	        ; GOOD
+			
+	LDR r0, =RCC_BASE
+	LDR r1, [r0, #RCC_APB2ENR]
+	ORR r1, r1, #RCC_APB2ENR_SYSCFGEN
+	STR r1, [r0, #RCC_APB2ENR]
+	
+	LDR r0, =0x40010014
+	LDR r1, [r0]
+	BIC r1, r1, #0xF0
+	ORR r1, r1, #0x20
+	STR r1, [r0]
 
-    LDR r0, =SYSCFG_BASE ; Loading SYSCFG base address
-    LDR r1, [r0, #SYSCFG_EXTICR4_EXTI13] ; Load EXTICR4 register to handle EXTI12-15 (we want 13)
-    BIC r1, r1, #0x70 ; Clear bits 7-4 for EXTI_13 
-    ORR r1, r1, #0x20 ; Setting Port C for GPIO
-    STR r1, [r0, #SYSCFG_EXTICR4_EXTI13] ; Write back to EXTICR4
+    
 
         ; GOOD STEP 1:
 
-        ; Enabling EXTI_13 interrupt -- IS THIS PROPER NOTATION (INFIX?)
+    ; Enabling EXTI_13 interrupt -- IS THIS PROPER NOTATION (INFIX?)
+	LDR r0, =EXTI_BASE ; Loading EXTI base address 
     LDR r1, [r0, #EXTI_IMR1] ; Load the interrupt mask register
     ORR r1, r1, #0x2000 ; Turn on EXTI_13
     STR r1, [r0, #EXTI_IMR1] ; Write back to the interrupt mask register
@@ -151,20 +159,21 @@ __main	PROC
 
        
     ; GOOD STEP 3: may need to find write permission and check EXTI_in table spot 40
-
-    LDR r0, =0xE00E100;  base NVIC reg block
-    LDR r1, [r0, #0x004]; NVIC_ISER1
-    ORR r1, r1, #0x100;   set bit 8 to enable EXTI lines 15:10
-    STR r1, [r0, #0x004];
+	LDR r0, =0xE000E104;  base NVIC reg block  NVIC_ISER1 
+	MOV r1, #0x100;   set bit 8 to enable EXTI lines 15:10
+	STR r1, [r0];
 
     ; Setting NVIC priority for EXTI_13 to 0 highest priority for non sys
     
-    LDR r1, [r0, #0x328]; NVIC_IPR10
-    BIC r1, r1, #0xF0; set bits [7:4] to 0 for prioirty 0
-    STR r1, [r0, #0x328];
+  ; LDR r1, [r0, #0x328]; NVIC_IPR10
+  ; BIC r1, r1, #0xF0; set bits [7:4] to 0 for prioirty 0
+  ; STR r1, [r0, #0x328];
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
 
+	
+	MOV r11, #0 ;intilize the door to 0 angle
+	
 ; ----------------------------------------------------------------
 ; MAIN LOOP FUNCTION BELOW/description of registers 
 ; Beginning of constant loop
@@ -213,8 +222,11 @@ Stop
 ;Branch to from main
 Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
+	push {LR}
+	BL Close_door
+	
 moving_train_loop
-	push{LR}
+	
 	
     CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
     BEQ moving_train_loop_end 	; If at station, break out of loop
@@ -350,25 +362,25 @@ Door_moveRight PROC
 
 	
 	; Step 1
-	BIC r1, r1, #0xF0 ; Clear
+	BIC r1, r1, #0xF00 ; Clear
 	ORR r1, r1, #0x900 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
  	BL delay_motor
 	
 	; Step 2
-	BIC r1, r1, #0xF0
+	BIC r1, r1, #0xF00
 	ORR r1, r1, #0x500
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
  
 	; Step 3
-	BIC r1, r1, #0xF0;
+	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x600
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
  
 	; Step 4
-	BIC r1, r1, #0xF0;
+	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0xA00
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
@@ -385,25 +397,25 @@ Door_moveLeft PROC
 	PUSH{LR} ; Push the LR before all of the calls to the delay_motor function
 	
 	; Step 1 (4 CW)
-	BIC r1, r1, #0xF0
+	BIC r1, r1, #0xF00
 	ORR r1, r1, #0xA00
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
  
 	; Step 2 (3 CW)
-	BIC r1, r1, #0xF0 ; Clear
+	BIC r1, r1, #0xF00 ; Clear
 	ORR r1, r1, #0x600 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
 	BL delay_motor
 	
 	; Step 3 (2 CW)
-	BIC r1, r1, #0xF0;
+	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x500
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
 
 	; Step 4 (1 CW)	
-	BIC r1, r1, #0xF0;
+	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x900
 	STR r1, [r0, #GPIO_ODR]
 	BL delay_motor
