@@ -27,7 +27,16 @@ Project File Date:  03/12/2025
 <h2>Output:</h2>
 *** Using Compiler 'V6.22', folder: 'C:\Users\mattk\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-".\Objects\lab.axf" - 0 Error(s), 0 Warning(s).
+"main.s", line 160: Warning: A1471W: Directive LTORG may be in an executable position
+  160 000000c4  LTORG ; Inserted LTORG to ensure no skipping occurs after this
+0 Errors, 1 Warning
+assembling main.s...
+linking...
+.\Objects\lab.sct(8): warning: L6314W: No section matches pattern *(InRoot$$Sections).
+Program Size: Code=1868 RO-data=392 RW-data=8 ZI-data=1536  
+Finished: 0 information, 1 warning and 0 error messages.
+FromELF: creating hex file...
+".\Objects\lab.axf" - 0 Error(s), 1 Warning(s).
 
 <h2>Software Packages used:</h2>
 
@@ -49,7 +58,7 @@ Package Vendor: Keil
 <h2>Collection of Component Files used:</h2>
 
    * Component: ARM::CMSIS:CORE@6.1.0
-Build Time Elapsed:  00:00:00
+Build Time Elapsed:  00:00:01
 </pre>
 </body>
 </html>

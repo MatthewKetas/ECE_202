@@ -156,7 +156,8 @@ __main	PROC
     LDR r1, [r0, #EXTI_RTSR1] ; Load rising trigger register onto r1      
     ORR r1, r1, #0x2000 ; Set bit 13 to 1 
     STR r1, [r0, #EXTI_RTSR1] ; Write back to rising trigger register
-
+	
+	LTORG ; Inserted LTORG to ensure no skipping occurs after this
        
     ; GOOD STEP 3: may need to find write permission and check EXTI_in table spot 40
 	LDR r0, =0xE000E104;  base NVIC reg block  NVIC_ISER1 
@@ -170,7 +171,7 @@ __main	PROC
   ; STR r1, [r0, #0x328];
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
-    LTORG  ; Inserted LTORG to ensure literal pool is within range
+    ;LTORG  ; Inserted LTORG to ensure literal pool is within range - ADD STATEMENT AFTER WHERE CODE SKIPS
 
 	
 	MOV r11, #0 ;intilize the door to 0 angle
@@ -186,27 +187,30 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
-
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
 
 Main_Loop 
+	; BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 1536 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #67 ;set next station to B
 	
+	; BL delay_station_stop
 	;Move to C
 	MOV r3, #3072 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
 	
+	; BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
 	
+	; BL delay_station_stop
 	;Move to A
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
@@ -225,10 +229,11 @@ Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
 	push {LR}
 	BL Close_door
+	; BL delay
 	
 moving_train_loop
 	
-	
+	BL delay ; Delay before compare during actual motor loop
     CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
     BEQ moving_train_loop_end 	; If at station, break out of loop
 	BGT move_train_left			;bigger angle than desired (past the desired station) 
@@ -236,13 +241,16 @@ moving_train_loop
 	B moving_train_loop 		;loop again
 	
 move_train_right
+	;BL delay - MAY NEED THIS WAS WORKING BUT SHAKY
 	BL Wheel_moveRight
 	B moving_train_loop
-move_train_left 
+move_train_left
+	;BL delay - MAY NEED THIS WAS WORKING BUT SHAKY
 	BL Wheel_moveLeft
 	B moving_train_loop	
 moving_train_loop_end 
 	
+	; BL delay
 	BL Open_door
 	pop {LR}
 	BX LR
@@ -600,10 +608,23 @@ displaykey
 delay	PROC
 	PUSH{LR}
 	; Delay for software debouncing
-	LDR	r2, =0x9999
+	LDR	r2, =0x9AAA ;
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop
+	POP{LR}
+	BX LR
+	
+	ENDP
+		
+	
+delay_station_stop	PROC
+	PUSH{LR}
+	; Delay for software debouncing
+	LDR	r2, =0x99999
+delayloop_station_stop
+	SUBS	r2, #1
+	BNE	delayloop_station_stop
 	POP{LR}
 	BX LR
 	
@@ -690,7 +711,6 @@ end_interrupt
 	ENDP
 		
 	LTORG  ; Inserted LTORG to handle any remaining literal references
-block
 
 	ALIGN			
 
