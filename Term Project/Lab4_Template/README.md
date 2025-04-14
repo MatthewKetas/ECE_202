@@ -11,6 +11,7 @@ LCD output: 15, 14, 11, 10
 ## GPIOC - OUTPUT
 Motor doors: 7, 6, 5, 4
 Motor train wheels: 3, 2, 1, 0
+Interrupt Button (Onboard Blue Button): 13
 
 
 ## Brian Notes
