@@ -236,10 +236,10 @@ moving_train_loop
 	B moving_train_loop 		;loop again
 	
 move_train_right
-	BL Wheel_moveRight
+	BL.W Wheel_moveRight
 	B moving_train_loop
 move_train_left 
-	BL Wheel_moveLeft
+	BL.W Wheel_moveLeft
 	B moving_train_loop	
 moving_train_loop_end 
 	
@@ -257,7 +257,7 @@ Open_door PROC
 open_door_loop
 	CMP r11, #128 ;128 cycles is roughly 90 degrees
 	BEQ end_open_door
-	BL Door_moveRight ;move towards 128 cycles
+	BL.W Door_moveRight ;move towards 128 cycles
 	B open_door_loop
 end_open_door
 	pop {LR}
@@ -272,7 +272,7 @@ Close_door PROC
 close_door_loop
 	CMP r11, #0 
 	BEQ end_close_door
-	BL Door_moveLeft 	;move towards 0 angle 
+	BL.W Door_moveLeft 	;move towards 0 angle 
 	B close_door_loop
 end_close_door
 	pop {LR}
