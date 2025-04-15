@@ -156,7 +156,8 @@ __main	PROC
     LDR r1, [r0, #EXTI_RTSR1] ; Load rising trigger register onto r1      
     ORR r1, r1, #0x2000 ; Set bit 13 to 1 
     STR r1, [r0, #EXTI_RTSR1] ; Write back to rising trigger register
-
+	
+	LTORG ; Inserted LTORG to ensure no skipping occurs after this
        
     ; GOOD STEP 3: may need to find write permission and check EXTI_in table spot 40
 	LDR r0, =0xE000E104;  base NVIC reg block  NVIC_ISER1 
@@ -170,7 +171,7 @@ __main	PROC
   ; STR r1, [r0, #0x328];
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
-    LTORG  ; Inserted LTORG to ensure literal pool is within range
+    ;LTORG  ; Inserted LTORG to ensure literal pool is within range - ADD STATEMENT AFTER WHERE CODE SKIPS
 
 	
 	MOV r11, #0 ;intilize the door to 0 angle
@@ -186,31 +187,39 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
-
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
+	BL seven_seg_B ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
 
 Main_Loop 
+	BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 1536 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #67 ;set next station to B
+	MOV r9, #67 ;set next station to C
+	BL seven_seg_C
 	
+	BL delay_station_stop
 	;Move to C
 	MOV r3, #3072 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #66 ;set next station to B
+	MOV r9, #66 ;set next station to A
+	BL seven_seg_B
 	
+	BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
+	BL seven_seg_A
 	
+	BL delay_station_stop
 	;Move to A
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #66 ;set next station to B
+	MOV r9, #66 ;set next station to 
+	BL seven_seg_B
 	
 	B Main_Loop
 	
@@ -228,7 +237,7 @@ Move_Train PROC ;uses r3 as the register to move to
 	
 moving_train_loop
 	
-	
+	BL delay_motor_right ; Delay before compare during actual motor loop
     CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
     BEQ moving_train_loop_end 	; If at station, break out of loop
 	BGT move_train_left			;bigger angle than desired (past the desired station) 
@@ -236,10 +245,10 @@ moving_train_loop
 	B moving_train_loop 		;loop again
 	
 move_train_right
-	BL.W Wheel_moveRight
+	BL Wheel_moveRight
 	B moving_train_loop
-move_train_left 
-	BL.W Wheel_moveLeft
+move_train_left
+	BL Wheel_moveLeft
 	B moving_train_loop	
 moving_train_loop_end 
 	
@@ -255,9 +264,10 @@ Open_door PROC
 	push{LR}
 	
 open_door_loop
+	BL delay_motor_right
 	CMP r11, #128 ;128 cycles is roughly 90 degrees
 	BEQ end_open_door
-	BL.W Door_moveRight ;move towards 128 cycles
+	BL Door_moveRight ;move towards 128 cycles
 	B open_door_loop
 end_open_door
 	pop {LR}
@@ -270,9 +280,10 @@ Close_door PROC
 	push{LR}
 
 close_door_loop
+	BL delay_motor_left
 	CMP r11, #0 
 	BEQ end_close_door
-	BL.W Door_moveLeft 	;move towards 0 angle 
+	BL Door_moveLeft 	;move towards 0 angle 
 	B close_door_loop
 end_close_door
 	pop {LR}
@@ -295,25 +306,25 @@ Wheel_moveRight PROC     ; Loading the GPIOC Output Register
 	BIC r1, r1, #0xF0 ; Clear
 	ORR r1, r1, #0x90 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
- 	BL delay_motor
+ 	BL delay_motor_right
 	
 	; Step 2
 	BIC r1, r1, #0xF0
 	ORR r1, r1, #0x50
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
  
 	; Step 3
 	BIC r1, r1, #0xF0;
 	ORR r1, r1, #0x60
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
  
 	; Step 4
 	BIC r1, r1, #0xF0;
 	ORR r1, r1, #0xA0
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
 	
 	ADD R10, R10, #1 ;increments the cycle by 1 (right/cw 1)
  	POP{LR} ; Pop the pushed address before returning to the branch 
@@ -331,25 +342,25 @@ Wheel_moveLeft PROC
 	BIC r1, r1, #0xF0
 	ORR r1, r1, #0xA0
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
  
 	; Step 2 (3 CW)
 	BIC r1, r1, #0xF0 ; Clear
 	ORR r1, r1, #0x60 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
-	BL delay_motor
+	BL delay_motor_left
  
 	; Step 3 (2 CW)
 	BIC r1, r1, #0xF0;
 	ORR r1, r1, #0x50
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
 
 	; Step 4 (1 CW)	
 	BIC r1, r1, #0xF0;
 	ORR r1, r1, #0x90
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
 	
 	SUB R10, R10, #1 ;decrements the cycle by 1 (left/ccw 1)
 	POP{LR} ; Pop the pushed address before returning to the branch 
@@ -366,25 +377,25 @@ Door_moveRight PROC
 	BIC r1, r1, #0xF00 ; Clear
 	ORR r1, r1, #0x900 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
- 	BL delay_motor
+ 	BL delay_motor_right
 	
 	; Step 2
 	BIC r1, r1, #0xF00
 	ORR r1, r1, #0x500
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
  
 	; Step 3
 	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x600
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
  
 	; Step 4
 	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0xA00
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_right
 	
 	ADD R11, R11, #1 ;increments the cycle by 1 (right/cw 1)
  	POP{LR} ; Pop the pushed address before returning to the branch 
@@ -401,25 +412,25 @@ Door_moveLeft PROC
 	BIC r1, r1, #0xF00
 	ORR r1, r1, #0xA00
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
  
 	; Step 2 (3 CW)
 	BIC r1, r1, #0xF00 ; Clear
 	ORR r1, r1, #0x600 ; Set
 	STR r1, [r0, #GPIO_ODR] ; Store - then CYCLE REPEATS
-	BL delay_motor
+	BL delay_motor_left
 	
 	; Step 3 (2 CW)
 	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x500
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
 
 	; Step 4 (1 CW)	
 	BIC r1, r1, #0xF00;
 	ORR r1, r1, #0x900
 	STR r1, [r0, #GPIO_ODR]
-	BL delay_motor
+	BL delay_motor_left
 
 	SUB R11, R11, #1 ;decrements the cycle by 1 (left/ccw 1)
 	POP{LR} ; Pop the pushed address before returning to the branch 
@@ -427,46 +438,57 @@ Door_moveLeft PROC
 	ENDP
 		
 
-delay_motor	PROC
+delay_motor_left	PROC
 	; Delay for software debouncing
-	LDR	r2, =0x9AAA				;tune this for speeds maybe too slow
-delayloop_motor
+	LDR	r2, =0xBF68 ;=0x9AAA				;tune this for speeds maybe too slow
+delayloop_motor_left
 	SUBS	r2, #1
-	BNE	delayloop_motor
+	BNE	delayloop_motor_left
+	BX LR
+	
+	ENDP
+		
+
+delay_motor_right	PROC
+	PUSH{LR}
+	; Delay for software debouncing
+	LDR	r2, =0xBF68 ; THIS NEEDS A SLIGHTLY LONGER DELAY THAN ROTATING THE MOTOR LEFT
+delayloop_motor_right
+	SUBS	r2, #1
+	BNE	delayloop_motor_right
+	POP{LR}
 	BX LR
 	
 	ENDP
 
-seven_seg_A PROC
-
+seven_seg_1 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xA00;
+	ORR r1, r1, #0x100;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
 	
-seven_seg_B PROC
+seven_seg_2 PROC
 
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xB00;
+	ORR r1, r1, #0x200;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
 	
-seven_seg_C PROC
+seven_seg_3 PROC
 
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xC00;
+	ORR r1, r1, #0x300;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
-
 
 
 ; Keypad functions and subfunctions
@@ -595,15 +617,28 @@ displaykey
 	BX LR		; after displaying a key returns to start
 	ENDP		
 
+
 ; END OF IDENTIFY BUTTON PROCESS -------------------------------------------------------------------------------------------
-	
+		
 delay	PROC
 	PUSH{LR}
 	; Delay for software debouncing
-	LDR	r2, =0x9999
+	LDR	r2, =0x9AAA ;
 delayloop
 	SUBS	r2, #1
 	BNE	delayloop
+	POP{LR}
+	BX LR
+	
+	ENDP
+	
+delay_station_stop	PROC
+	PUSH{LR}
+	; Delay for software debouncing
+	LDR	r2, =0x999999
+delayloop_station_stop
+	SUBS	r2, #1
+	BNE	delayloop_station_stop
 	POP{LR}
 	BX LR
 	
@@ -648,6 +683,8 @@ checkRow PROC
 	ENDP
 
 
+
+
 ; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
 	PUSH {LR}
@@ -690,7 +727,6 @@ end_interrupt
 	ENDP
 		
 	LTORG  ; Inserted LTORG to handle any remaining literal references
-block
 
 	ALIGN			
 
