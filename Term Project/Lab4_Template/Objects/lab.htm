@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\lab.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\lab.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Mon Apr 14 19:59:38 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Mon Apr 14 22:56:38 2025
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -28,7 +28,6 @@ Mutually Recursive functions
  <LI><a href="#[8]">PendSV_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[8]">PendSV_Handler</a><BR>
  <LI><a href="#[9]">SysTick_Handler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[9]">SysTick_Handler</a><BR>
  <LI><a href="#[1c]">ADC1_2_IRQHandler</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[1c]">ADC1_2_IRQHandler</a><BR>
- <LI><a href="#[6c]">checkRow</a>&nbsp;&nbsp;&nbsp;&rArr;&nbsp;&nbsp;&nbsp;<a href="#[68]">identifyButton</a><BR>
 </UL>
 <P>
 <H3>
@@ -62,7 +61,7 @@ Function Pointers
  <LI><a href="#[4f]">DMA2_Channel7_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
  <LI><a href="#[7]">DebugMon_Handler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
  <LI><a href="#[10]">EXTI0_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
- <LI><a href="#[32]">EXTI15_10_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
+ <LI><a href="#[32]">EXTI15_10_IRQHandler</a> from main.o(main) referenced from startup_stm32l476xx.o(RESET)
  <LI><a href="#[11]">EXTI1_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
  <LI><a href="#[12]">EXTI2_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
  <LI><a href="#[13]">EXTI3_IRQHandler</a> from startup_stm32l476xx.o(.text) referenced from startup_stm32l476xx.o(RESET)
@@ -279,9 +278,6 @@ Global Symbols
 <P><STRONG><a name="[10]"></a>EXTI0_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32l476xx.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
 </UL>
-<P><STRONG><a name="[32]"></a>EXTI15_10_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32l476xx.o(.text))
-<BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
-</UL>
 <P><STRONG><a name="[11]"></a>EXTI1_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32l476xx.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
 </UL>
@@ -460,7 +456,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[6f]"></a>USART2_Write</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, uart.o(.text.USART2_Write), UNUSED, KEPT)
+<P><STRONG><a name="[6f]"></a>USART2_Write</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, uart.o(.text.USART2_Write))
 <BR><BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>
 
@@ -468,12 +464,23 @@ Global Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART2_Init
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Clock_Init
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_station_stop
-<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_C
-<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_B
-<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_A
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_3
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_2
+<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_1
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(.text)
+</UL>
+<P><STRONG><a name="[32]"></a>EXTI15_10_IRQHandler</STRONG> (Thumb, 150 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_station_stop
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
+<LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_3
+<LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_2
+<LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_1
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Close_door
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
+</UL>
+<BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
 </UL><P>
 <H3>
 Local Symbols
@@ -485,8 +492,8 @@ Local Symbols
 <LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Close_door
 <LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Open_door
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
-<LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
+<BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
 <P><STRONG><a name="[5d]"></a>Open_door</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(main))
@@ -500,7 +507,8 @@ Local Symbols
 <BR><BR>[Calls]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_motor_left
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Door_moveLeft
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
+<BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 
 <P><STRONG><a name="[5f]"></a>Wheel_moveRight</STRONG> (Thumb, 72 bytes, Stack size 0 bytes, main.o(main))
@@ -540,46 +548,48 @@ Local Symbols
 <LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 
-<P><STRONG><a name="[65]"></a>seven_seg_A</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[65]"></a>seven_seg_1</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[66]"></a>seven_seg_B</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[66]"></a>seven_seg_2</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[67]"></a>seven_seg_C</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<P><STRONG><a name="[67]"></a>seven_seg_3</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[68]"></a>identifyButton</STRONG> (Thumb, 238 bytes, Stack size 0 bytes, main.o(main), UNUSED, KEPT)
+<P><STRONG><a name="[68]"></a>identifyButton</STRONG> (Thumb, 238 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Calls]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Write
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkCols
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
 </UL>
-<BR>[Called By]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
+<BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
 </UL>
 
-<P><STRONG><a name="[69]"></a>delay</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, main.o(main), UNUSED, KEPT)
+<P><STRONG><a name="[69]"></a>delay</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Called By]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>
 
 <P><STRONG><a name="[6a]"></a>delay_station_stop</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<BR><BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
+<LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[6b]"></a>checkCols</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main), UNUSED, KEPT)
+<P><STRONG><a name="[6b]"></a>checkCols</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Called By]<UL><LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
 <LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>
 
-<P><STRONG><a name="[6c]"></a>checkRow</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, main.o(main), UNUSED, KEPT)
+<P><STRONG><a name="[6c]"></a>checkRow</STRONG> (Thumb, 44 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Calls]<UL><LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkCols
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
-<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
-<LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 <BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>

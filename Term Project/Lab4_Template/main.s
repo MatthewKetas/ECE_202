@@ -682,12 +682,14 @@ checkRow PROC
 	BX LR
 	ENDP
 
-
+	
+	LTORG ; Flush out literal pool before interrupt handler
 
 
 ; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
+	EXPORT EXTI15_10_IRQHandler
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
-	PUSH {LR}
+	PUSH {r4, r5, LR}
 
 	; Check the pending register
 	LDR r0, =EXTI_BASE
@@ -702,27 +704,71 @@ EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and 
 	STR r1, [r0, #EXTI_PR1]
 
 	; Now carry out the rest of the code
+	; Save the next state for the 7-seg display and present the choice 
+	LDR r1, =GPIOA_BASE ; Loading base register
+	LDR r2, [r1, #GPIO_ODR] ; Keeping the ODR in r2
+	PUSH{r2} ; Save result before branching with link
+	
 	BL identifyButton ; R0 will have the button code in it from 0-11 now - refer to above documentation
 	CMP r0, #1 ; Immediate move to station A
 	MOVEQ r3, #0
+	BEQ go_one
+return_one
 	BEQ station_pressed
 	CMP r0, #2 ; Immediate move to station B
 	MOVEQ r3, #1536
+	BEQ go_two
+return_two
 	BEQ station_pressed
 	CMP r0, #3 ; Immediate move to station C
 	MOVEQ r3, #3072
+	BEQ go_three
+return_three
 	BEQ station_pressed
 	BNE no_station_pressed
+	
+go_one
+	BL seven_seg_1
+	B return_one
+go_two
+	BL seven_seg_2
+	B return_two
+go_three
+	BL seven_seg_3
+	B return_three
 
 station_pressed
+	; Moving the train and doors
 	BL Move_Train
+	BL delay_station_stop
+	BL Close_door
+	POP{r2} ; Use result before branch with link
+
+	; Resetting the 7-seg display
+	CMP r2, #0x100
+	BEQ revert_one
+	CMP r2, #0x200
+	BEQ revert_two
+	CMP r2, #0x300
+	BEQ revert_three
+	
+revert_one
+	BL seven_seg_1
+	B end_interrupt
+revert_two
+	BL seven_seg_2
+	B end_interrupt
+revert_three
+	BL seven_seg_3
+	B end_interrupt
+	
 	B end_interrupt
 
 no_station_pressed
-	CMP r0, #11 ; Emergency stop - display message - TO BE EDITED IN FUTURE
+	CMP r0, #10 ; Emergency stop - display message - TO BE EDITED IN FUTURE
 
 end_interrupt
-	POP{LR}
+	POP{r4, r5, LR}
 	BX LR
 	ENDP
 		
