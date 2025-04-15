@@ -221,22 +221,6 @@
         <Bp>
           <Number>4</Number>
           <Type>0</Type>
-          <LineNumber>508</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134219654</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>.\main.s</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\lab\main.s\508</Expression>
-        </Bp>
-        <Bp>
-          <Number>5</Number>
-          <Type>0</Type>
           <LineNumber>695</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
@@ -251,7 +235,7 @@
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>6</Number>
+          <Number>5</Number>
           <Type>0</Type>
           <LineNumber>697</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -267,7 +251,7 @@
           <Expression></Expression>
         </Bp>
         <Bp>
-          <Number>7</Number>
+          <Number>6</Number>
           <Type>0</Type>
           <LineNumber>695</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -279,6 +263,22 @@
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
           <Filename>.\stm32l476xx_constants.s</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+        <Bp>
+          <Number>7</Number>
+          <Type>0</Type>
+          <LineNumber>508</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>.\main.s</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
