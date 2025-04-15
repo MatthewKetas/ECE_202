@@ -187,6 +187,7 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
+	BL turn_off_LED ; Initialize the LED as being off
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
@@ -257,7 +258,6 @@ move_train_left
 	BL Wheel_moveLeft
 	B moving_train_loop	
 moving_train_loop_end 
-	
 	BL Open_door
 	pop {LR}
 	BX LR
@@ -276,6 +276,7 @@ open_door_loop
 	BL Door_moveRight ;move towards 128 cycles
 	B open_door_loop
 end_open_door
+	BL turn_on_LED
 	pop {LR}
 	BX LR
 	ENDP
@@ -292,6 +293,7 @@ close_door_loop
 	BL Door_moveLeft 	;move towards 0 angle 
 	B close_door_loop
 end_close_door
+	BL turn_off_LED
 	pop {LR}
 	BX LR
 	ENDP
@@ -503,7 +505,7 @@ seven_seg_3 PROC
 
 ; Returns button 0-9 (* = 10 AND # = 11) - only returns once a button has been pressed, it remains in the main loop otherwise
 identifyButton	PROC
-	PUSH{LR, r3, r5, r6, r8, r9, r10, r11} ; Push all of the registers that are utilized here
+	PUSH{r3, r5, r6, r8, r9, r10, r11, LR} ; Push all of the registers that are utilized here
 
 loop ; Beginning of constant loop
 	; Pull all rows low
@@ -633,7 +635,6 @@ displaykey
 	LDREQ r0, =manual_override_3
 	MOVEQ r1, #30;
 
-
 	CMP r10, #0;
 	LDREQ r0, =station_1_arrive
 	MOVEQ r1, #22; 22 bytes in the msgs in theory
@@ -646,10 +647,10 @@ displaykey
 	LDREQ r0, =station_3_arrive
 	MOVEQ r1, #22;
 	
-	PUSH{r2, LR} ; Save the original value for return
+	PUSH{r2} ; Save the original value for return - MAY NEED TO PUSH LR HERE TOO
 	BL USART2_Write
 	POP{r2}
-	POP{LR, r3, r5, r6, r8, r9, r10, r11}
+	POP{r3, r5, r6, r8, r9, r10, r11, LR}
 	MOV r0, r2 ; Moving the result from r0 to r2
 	BX LR		; after displaying a key returns to start
 	ENDP		
@@ -672,7 +673,7 @@ delayloop
 delay_station_stop	PROC
 	PUSH{LR}
 	; Delay for software debouncing
-	LDR	r2, =0x999999
+	LDR	r2, =0x1333332
 delayloop_station_stop
 	SUBS	r2, #1
 	BNE	delayloop_station_stop
@@ -788,6 +789,7 @@ station_pressed
 	BEQ revert_two
 	CMP r2, #0x300
 	BEQ revert_three
+	BNE end_interrupt
 	
 revert_one
 	BL seven_seg_1
@@ -799,11 +801,9 @@ revert_three
 	BL seven_seg_3
 	B end_interrupt
 	
-	B end_interrupt
-
 no_station_pressed
-	CMP r0, #10 ; Emergency stop - display message - TO BE EDITED IN FUTURE
-
+	POP{R2}
+	
 end_interrupt
 	POP{r4, r5, LR}
 	BX LR
@@ -825,6 +825,30 @@ station_update PROC
 
 	PUSH{LR}
 	BL USART2_Write
+	POP{LR}
+	BX LR
+	ENDP
+
+
+turn_on_LED PROC
+	PUSH{LR}
+	; Load the ODR from GPIOA 0x20 (PA5)
+	LDR r0, =GPIOA_BASE
+	LDR r1, [r0, #GPIO_ODR]
+	BIC r1, r1, #0x20 ; Clear the bits
+	ORR r1, r1, #0x20 ; Turn on PA5
+	STR r1, [r0, #GPIO_ODR] ; Store it in the ODR
+	POP{LR}
+	BX LR
+	ENDP
+		
+turn_off_LED PROC
+	PUSH{LR}
+	; Load the ODR from GPIOA 0x20 (PA5)
+	LDR r0, =GPIOA_BASE
+	LDR r1, [r0, #GPIO_ODR]
+	BIC r1, r1, #0x20 ; Clear the bits
+	STR r1, [r0, #GPIO_ODR] ; Store it in the ODR
 	POP{LR}
 	BX LR
 	ENDP
