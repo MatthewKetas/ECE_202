@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\lab.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\lab.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Mon Apr 14 22:56:38 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Tue Apr 15 11:53:07 2025
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -12,7 +12,7 @@ Call chain for Maximum Stack Depth:</H3>
 <H3>
 Functions with no stack information
 </H3><UL>
- <LI><a href="#[70]">__user_initial_stackheap</a>
+ <LI><a href="#[73]">__user_initial_stackheap</a>
 </UL>
 </UL>
 <P>
@@ -440,29 +440,32 @@ Global Symbols
 <P><STRONG><a name="[a]"></a>WWDG_IRQHandler</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, startup_stm32l476xx.o(.text))
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32l476xx.o(RESET)
 </UL>
-<P><STRONG><a name="[70]"></a>__user_initial_stackheap</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, startup_stm32l476xx.o(.text), UNUSED)
+<P><STRONG><a name="[73]"></a>__user_initial_stackheap</STRONG> (Thumb, 0 bytes, Stack size unknown bytes, startup_stm32l476xx.o(.text), UNUSED)
 
-<P><STRONG><a name="[71]"></a>__use_two_region_memory</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[74]"></a>__use_two_region_memory</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[72]"></a>__rt_heap_escrow$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[75]"></a>__rt_heap_escrow$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[73]"></a>__rt_heap_expand$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
+<P><STRONG><a name="[76]"></a>__rt_heap_expand$2region</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, heapauxi.o(.text), UNUSED)
 
-<P><STRONG><a name="[6d]"></a>System_Clock_Init</STRONG> (Thumb, 284 bytes, Stack size 0 bytes, sysclock.o(.text.System_Clock_Init))
+<P><STRONG><a name="[70]"></a>System_Clock_Init</STRONG> (Thumb, 284 bytes, Stack size 0 bytes, sysclock.o(.text.System_Clock_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[6e]"></a>UART2_Init</STRONG> (Thumb, 228 bytes, Stack size 0 bytes, uart.o(.text.UART2_Init))
+<P><STRONG><a name="[71]"></a>UART2_Init</STRONG> (Thumb, 228 bytes, Stack size 0 bytes, uart.o(.text.UART2_Init))
 <BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[6f]"></a>USART2_Write</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, uart.o(.text.USART2_Write))
-<BR><BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
+<P><STRONG><a name="[72]"></a>USART2_Write</STRONG> (Thumb, 52 bytes, Stack size 0 bytes, uart.o(.text.USART2_Write))
+<BR><BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;station_update
+<LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>
 
-<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 340 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART2_Init
-<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Clock_Init
+<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 364 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART2_Init
+<LI><a href="#[70]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Clock_Init
+<LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;turn_off_LED
+<LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;station_update
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_station_stop
 <LI><a href="#[67]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_3
 <LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_2
@@ -496,15 +499,17 @@ Local Symbols
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[5d]"></a>Open_door</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_motor_right
+<P><STRONG><a name="[5d]"></a>Open_door</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;turn_on_LED
+<LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_motor_right
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Door_moveRight
 </UL>
 <BR>[Called By]<UL><LI><a href="#[5c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 
-<P><STRONG><a name="[5e]"></a>Close_door</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_motor_left
+<P><STRONG><a name="[5e]"></a>Close_door</STRONG> (Thumb, 28 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;turn_off_LED
+<LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_motor_left
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Door_moveLeft
 </UL>
 <BR>[Called By]<UL><LI><a href="#[32]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EXTI15_10_IRQHandler
@@ -563,8 +568,8 @@ Local Symbols
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
 </UL>
 
-<P><STRONG><a name="[68]"></a>identifyButton</STRONG> (Thumb, 238 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[6f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Write
+<P><STRONG><a name="[68]"></a>identifyButton</STRONG> (Thumb, 292 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Write
 <LI><a href="#[6c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkRow
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;checkCols
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
@@ -592,6 +597,21 @@ Local Symbols
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay
 </UL>
 <BR>[Called By]<UL><LI><a href="#[68]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
+</UL>
+
+<P><STRONG><a name="[6d]"></a>station_update</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[72]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Write
+</UL>
+<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+</UL>
+
+<P><STRONG><a name="[6e]"></a>turn_on_LED</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Called By]<UL><LI><a href="#[5d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Open_door
+</UL>
+
+<P><STRONG><a name="[6f]"></a>turn_off_LED</STRONG> (Thumb, 20 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Close_door
 </UL>
 <P>
 <H3>
