@@ -626,19 +626,6 @@ displaykey
 	CMP r2, #3; checking for overide to stat 3
 	LDREQ r0, =manual_override_3
 	MOVEQ r1, #30;
-
-
-	CMP r10, #0;
-	LDREQ r0, =station_1_arrive
-	MOVEQ r1, #22; 22 bytes in the msgs in theory
-
-	CMP r10, #1536
-	LDREQ r0, =station_2_arrive
-	MOVEQ r1, #22;
-	
-	CMP r10, #3072
-	LDREQ r0, =station_3_arrive
-	MOVEQ r1, #22;
 	
 	PUSH{r2} ; Save the original value for return
 	BL USART2_Write
@@ -755,6 +742,26 @@ no_station_pressed
 end_interrupt
 	POP{LR}
 	BX LR
+	ENDP
+
+station_update PROC
+	CMP r10, #0;
+	LDREQ r0, =station_1_arrive
+	MOVEQ r1, #22; 22 bytes in the msgs in theory
+
+	CMP r10, #1536
+	LDREQ r0, =station_2_arrive
+	MOVEQ r1, #22;
+	
+	CMP r10, #3072
+	LDREQ r0, =station_3_arrive
+	MOVEQ r1, #22;
+
+	PUSH{LR}
+	BL USART2_Write
+	POP{LR}
+	BX LR
+	
 	ENDP
 		
 	LTORG  ; Inserted LTORG to handle any remaining literal references
