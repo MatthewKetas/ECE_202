@@ -191,6 +191,7 @@ __main	PROC
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
 	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	BL station_update ; Update the station in teraterm
 
 Main_Loop 
 	BL delay_station_stop
@@ -199,6 +200,8 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #67 ;set next station to C
 	BL seven_seg_3
+	BL station_update ; Update the station in teraterm
+	
 	
 	BL delay_station_stop
 	;Move to C
@@ -206,6 +209,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to A
 	BL seven_seg_2
+	BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to B
@@ -213,6 +217,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
 	BL seven_seg_1
+	BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to A
@@ -220,6 +225,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to 
 	BL seven_seg_2
+	BL station_update ; Update the station in teraterm
 	
 	B Main_Loop
 	
@@ -640,7 +646,7 @@ displaykey
 	LDREQ r0, =station_3_arrive
 	MOVEQ r1, #22;
 	
-	PUSH{r2} ; Save the original value for return
+	PUSH{r2, LR} ; Save the original value for return
 	BL USART2_Write
 	POP{r2}
 	POP{LR, r3, r5, r6, r8, r9, r10, r11}
@@ -800,6 +806,26 @@ no_station_pressed
 
 end_interrupt
 	POP{r4, r5, LR}
+	BX LR
+	ENDP
+		
+		
+station_update PROC
+	CMP r10, #0;
+	LDREQ r0, =station_1_arrive
+	MOVEQ r1, #22; 22 bytes in the msgs in theory
+
+	CMP r10, #1536
+	LDREQ r0, =station_2_arrive
+	MOVEQ r1, #22;
+	
+	CMP r10, #3072
+	LDREQ r0, =station_3_arrive
+	MOVEQ r1, #22;
+
+	PUSH{LR}
+	BL USART2_Write
+	POP{LR}
 	BX LR
 	ENDP
 		
