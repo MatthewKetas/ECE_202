@@ -190,7 +190,7 @@ __main	PROC
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
-	BL seven_seg_B ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
 
 Main_Loop 
 	BL delay_station_stop
@@ -198,28 +198,28 @@ Main_Loop
 	MOV r3, #1536 ;move 1536 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #67 ;set next station to C
-	BL seven_seg_C
+	BL seven_seg_3
 	
 	BL delay_station_stop
 	;Move to C
 	MOV r3, #3072 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to A
-	BL seven_seg_B
+	BL seven_seg_2
 	
 	BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
-	BL seven_seg_A
+	BL seven_seg_1
 	
 	BL delay_station_stop
 	;Move to A
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to 
-	BL seven_seg_B
+	BL seven_seg_2
 	
 	B Main_Loop
 	
