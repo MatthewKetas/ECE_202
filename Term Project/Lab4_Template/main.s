@@ -190,7 +190,7 @@ __main	PROC
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
-	BL seven_seg_B ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
 
 Main_Loop 
 	BL delay_station_stop
@@ -198,28 +198,28 @@ Main_Loop
 	MOV r3, #1536 ;move 1536 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #67 ;set next station to C
-	BL seven_seg_C
+	BL seven_seg_3
 	
 	BL delay_station_stop
 	;Move to C
 	MOV r3, #3072 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to A
-	BL seven_seg_B
+	BL seven_seg_2
 	
 	BL delay_station_stop
 	;Move to B
 	MOV r3, #1536 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
-	BL seven_seg_A
+	BL seven_seg_1
 	
 	BL delay_station_stop
 	;Move to A
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to 
-	BL seven_seg_B
+	BL seven_seg_2
 	
 	B Main_Loop
 	
@@ -461,35 +461,34 @@ delayloop_motor_right
 	
 	ENDP
 
-seven_seg_A PROC
+seven_seg_1 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xA00;
+	ORR r1, r1, #0x100;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
 	
-seven_seg_B PROC
+seven_seg_2 PROC
 
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xB00;
+	ORR r1, r1, #0x200;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
 	
-seven_seg_C PROC
+seven_seg_3 PROC
 
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
-	ORR r1, r1, #0xC00;
+	ORR r1, r1, #0x300;
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
-
 
 
 ; Keypad functions and subfunctions
