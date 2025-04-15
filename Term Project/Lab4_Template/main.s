@@ -461,6 +461,8 @@ delayloop_motor_right
 	
 	ENDP
 
+
+
 seven_seg_1 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
@@ -606,10 +608,39 @@ row3
 	BEQ displaykey
 	
 displaykey
+	
+	; 0 1536 or 3072 
+	CMP r2, #10;  checking if button 10 is pressed known as emmergcy button
+	LDREQ r0, =emergency_msg
+	MOVEQ r1, #41; 41 bytes in memory for the msg in theory
+
+	;check r2 init values later
+	CMP r2, #1; checking for overide to stat 1
+	LDREQ r0, =manual_override_1
+	MOVEQ r1, #30;   30 bytes of memory for the msg for stats 1,2,3
+
+	CMP r2, #2; checking for overide to stat 2
+	LDREQ r0, =manual_override_2
+	MOVEQ r1, #30;
+
+	CMP r2, #3; checking for overide to stat 3
+	LDREQ r0, =manual_override_3
+	MOVEQ r1, #30;
+
+
+	CMP r10, #0;
+	LDREQ r0, =station_1_arrive
+	MOVEQ r1, #22; 22 bytes in the msgs in theory
+
+	CMP r10, #1536
+	LDREQ r0, =station_2_arrive
+	MOVEQ r1, #22;
+	
+	CMP r10, #3072
+	LDREQ r0, =station_3_arrive
+	MOVEQ r1, #22;
+	
 	PUSH{r2} ; Save the original value for return
-	LDR	r0, =char1
-	STR	r5, [r0]
-	MOV r1, #1    ; Second argument
 	BL USART2_Write
 	POP{r2}
 	POP{LR, r3, r5, r6, r8, r9, r10, r11}
@@ -778,6 +809,11 @@ end_interrupt
 
 	AREA myData, DATA, READWRITE
 	ALIGN
-char1	DCD	43
-testByte DCD 0 ; THIS IS PURELY A TEST BYTE TO ENSURE THAT TERATERM IS WORKING PROPERLY
+station_1_arrive DCB "Arrived at Station 1\n", 0 			; station 1 msg char buffer 20,
+station_2_arrive DCB "Arrived at Station 2\n", 0 			; station 2 msg
+station_3_arrive DCB "Arrived at Station 3\n", 0 			; station 3 msg
+manual_override_1 DCB "Manual override to station 1\n", 0
+manual_override_2 DCB "Manual override to station 2\n", 0
+manual_override_3 DCB "Manual override to station 3\n", 0
+emergency_msg DCB "ALERT!!! EMERGENCY SWITCH BUTTON PUSHED\n", 0
 	END
