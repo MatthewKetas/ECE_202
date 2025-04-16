@@ -239,27 +239,90 @@ Stop
 ;Branch to from main
 Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
-	push {LR}
+	push {R4, R5, R6, R7, r8, r9, LR}
 	BL Close_door
 	
-moving_train_loop
+	SUBS r7, r10, r3	;r7 will be the register to compare to during acceleration
+	BEQ moving_train_looping_end 
 	
-	BL delay_motor_right ; Delay before compare during actual motor loop
-    CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
-    BEQ moving_train_loop_end 	; If at station, break out of loop
+	;gets the absolute value of the difference between destination and current location
+	MOV r9, r7 
+	CMP r9, #0
+    BGE ABS_Obtained  
+    RSB r9, r9, #0;
+ABS_Obtained
+
+	MOV r2, #5			
+	SDIV r7, r7, r2		; gets 20% of the distance that needs to be traveled and stores it in r7
+	ADD r5, r3, r7		; sets r5 as the register to compare against to tell when 80% to destination to start decelerating
+	
+	MOV r2, #4
+	MUL r7, r7, r2		; make it subtract 80% from the destination
+	ADD r7, r3, r7 	; finalize the r7 register to compare against to tell when 20% to the destination
+	
+	LDR r6, =0xEFFFF	; SLOWEST DELAY
+	LDR r4, =0x9AAA		; FASTEST DELAY
+	
+	SUB r2, r6, r4		; gets the difference between fastest and slowest delay
+	MOV r1, #5
+	SDIV r9, r9, r1
+	SDIV r9, r2, r9		; stores the amount needed to increment/decrement the delay each loop of accelerate/decelerate
+	
+
+	
+accelerate_train_loop
+	LDR r8, =accelerate_train_loop
+	
+	SUB r6, r9			; decreases the delay, simulating speeding up
+	BL delay_variable ; Delay before compare during actual motor loop
+	
+    CMP R10, R7               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
+    BEQ moving_train_loop 	; If at station, break out of loop
+	BGT move_train_left			;bigger angle than desired (past the desired station) 
+	BLT move_train_right 		;smaller angle than desired (before the desired station)
+	B accelerate_train_loop 		;loop again
+	
+moving_train_loop
+	LDR r8, =moving_train_loop
+	
+	MOV r6, r4					;makes sure the delay being passed is the normal speed
+	BL delay_variable ; Delay before compare during actual motor loop
+    CMP R10, R5               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
+    BEQ decelerate_train_loop 	; If at station, break out of loop
 	BGT move_train_left			;bigger angle than desired (past the desired station) 
 	BLT move_train_right 		;smaller angle than desired (before the desired station)
 	B moving_train_loop 		;loop again
 	
+decelerate_train_loop
+	LDR r8, =decelerate_train_loop
+	
+	ADD r6, r9			; increases the delay (simulating slowing down
+	BL delay_variable ; Delay before compare during actual motor loop
+	
+    CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
+    BEQ moving_train_looping_end 	; If at station, break out of loop
+	BGT move_train_left			;bigger angle than desired (past the desired station) 
+	BLT move_train_right 		;smaller angle than desired (before the desired station)
+	B decelerate_train_loop 		;loop again
+
 move_train_right
 	BL Wheel_moveRight
-	B moving_train_loop
+	BX r8
 move_train_left
 	BL Wheel_moveLeft
-	B moving_train_loop	
-moving_train_loop_end 
+	BX r8
+	
+
+moving_train_looping_end 
+	
 	BL Open_door
-	pop {LR}
+	pop {R4, R5, R6, R7, r8, r9, LR}
+	
+	CMP r3, #1536 ; the station B destination
+	MOVLT r8, #65	; less than station B, current station is A
+	MOVEQ r8, #66	; equal to station B, current station is B
+	MOVGT r8, #67	; greater than station B, current station is C
+	
 	BX LR
 	ENDP
 		
@@ -299,7 +362,7 @@ end_close_door
 	ENDP
 ; ----------------------------------------------------------------
 		
-		
+	LTORG  ; Inserted LTORG to ensure literal pool is within range
 		
 	
 ;	------- MOTOR processes
@@ -620,11 +683,13 @@ displaykey
 	; 0 1536 or 3072 
 	CMP r2, #10;  checking if button 10 is pressed known as emmergcy button
 	LDREQ r0, =emergency_msg
-	MOVEQ r1, #42; 41 bytes in memory for the msg in theory
+  
+	MOVEQ r1, #42; 42 bytes in memory for the msg in theory
 
 	;check r2 init values later
 	CMP r2, #1; checking for overide to stat 1
 	LDREQ r0, =manual_override_1
+
 	MOVEQ r1, #31;   30 bytes of memory for the msg for stats 1,2,3
 
 	CMP r2, #2; checking for overide to stat 2
@@ -681,6 +746,17 @@ delayloop_station_stop
 	BX LR
 	
 	ENDP
+		
+delay_variable	PROC	;for varaible delays (for acceleration and deceleration)
+	PUSH{r6, LR}
+delayloop_varaible 
+	SUBS	r6, #1
+	BNE	delayloop_varaible
+	POP{r6, LR}
+	BX LR
+	
+	ENDP
+
 
 ; RETURNS Pin 1-3 as HIGH depending on voltage
 checkCols PROC
@@ -859,6 +935,7 @@ turn_off_LED PROC
 
 	AREA myData, DATA, READWRITE
 	ALIGN
+  
 station_1_arrive DCB "Arrived at Station 1\r\n", 0 			; station 1 msg char buffer 20,
 station_2_arrive DCB "Arrived at Station 2\r\n", 0 			; station 2 msg
 station_3_arrive DCB "Arrived at Station 3\r\n", 0 			; station 3 msg
