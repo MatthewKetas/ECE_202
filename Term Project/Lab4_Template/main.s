@@ -242,6 +242,8 @@ Move_Train PROC ;uses r3 as the register to move to
 	push {R4, R5, R6, R7, r8, r9, LR}
 	BL Close_door
 	
+Interrupt_return
+	
 	SUBS r7, r10, r3	;r7 will be the register to compare to during acceleration
 	BEQ moving_train_looping_end 
 	
@@ -273,7 +275,12 @@ ABS_Obtained
 accelerate_train_loop
 	LDR r8, =accelerate_train_loop
 	
-	SUB r6, r9			; decreases the delay, simulating speeding up
+	SUBS r6, r9
+	BLE Already_reached_speed			; decreases the delay, simulating speeding up
+	BGT Acceleration_start_delay
+Already_reached_speed
+	MOV r6, r4
+Acceleration_start_delay
 	BL delay_variable ; Delay before compare during actual motor loop
 	
     CMP R10, R7               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
@@ -699,18 +706,6 @@ displaykey
 	CMP r2, #3; checking for overide to stat 3
 	LDREQ r0, =manual_override_3
 	MOVEQ r1, #31;
-
-	CMP r10, #0;
-	LDREQ r0, =station_1_arrive
-	MOVEQ r1, #23; 22 bytes in the msgs in theory
-
-	CMP r10, #1536
-	LDREQ r0, =station_2_arrive
-	MOVEQ r1, #23;
-	
-	CMP r10, #3072
-	LDREQ r0, =station_3_arrive
-	MOVEQ r1, #23;
 	
 	PUSH{r2} ; Save the original value for return - MAY NEED TO PUSH LR HERE TOO
 	BL USART2_Write
@@ -803,7 +798,8 @@ checkRow PROC
 ; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
 	EXPORT EXTI15_10_IRQHandler
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
-	PUSH {r4, r5, LR}
+	PUSH {r4-r9, LR}
+	;PUSH{r4-r11, LR}
 
 	; Check the pending register
 	LDR r0, =EXTI_BASE
@@ -881,7 +877,9 @@ no_station_pressed
 	POP{R2}
 	
 end_interrupt
-	POP{r4, r5, LR}
+	;LDR r8, =Interrupt_return
+	POP{r4-r9, LR}
+	;POP{r4-r11, LR}
 	BX LR
 	ENDP
 		
