@@ -187,6 +187,7 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
+	BL turn_off_LED ; Initialize the LED as being off
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
@@ -207,7 +208,7 @@ Main_Loop
 	;Move to C
 	MOV r3, #3072 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #66 ;set next station to B
+	MOV r9, #66 ;set next station to A
 	BL seven_seg_2
 	BL station_update ; Update the station in teraterm
 	
@@ -215,7 +216,7 @@ Main_Loop
 	;Move to B
 	MOV r3, #1536 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #65 ;set next station to A
+	MOV r9, #65 ;set next station to B
 	BL seven_seg_1
 	BL station_update ; Update the station in teraterm
 	
@@ -223,7 +224,7 @@ Main_Loop
 	;Move to A
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
-	MOV r9, #66 ;set next station to B
+	MOV r9, #66 ;set next station to 
 	BL seven_seg_2
 	BL station_update ; Update the station in teraterm
 	
@@ -241,34 +242,36 @@ Move_Train PROC ;uses r3 as the register to move to
 	push {R4, R5, R6, R7, r8, r9, LR}
 	BL Close_door
 	
-
-	SUBS R7, R10, R3 ; 
-	BEQ moving_train_looping_end ;if r3=r10, its already at the correct station
+	SUBS r7, r10, r3	;r7 will be the register to compare to during acceleration
+	BEQ moving_train_looping_end 
 	
+	;gets the absolute value of the difference between destination and current location
+	MOV r9, r7 
+	CMP r9, #0
+    BGE ABS_Obtained  
+    RSB r9, r9, #0;
+ABS_Obtained
+
+	MOV r2, #5			
+	SDIV r7, r7, r2		; gets 20% of the distance that needs to be traveled and stores it in r7
+	ADD r5, r3, r7		; sets r5 as the register to compare against to tell when 80% to destination to start decelerating
+	
+	MOV r2, #4
+	MUL r7, r7, r2		; make it subtract 80% from the destination
+	ADD r7, r3, r7 	; finalize the r7 register to compare against to tell when 20% to the destination
+	
+	LDR r6, =0xEFFFF	; SLOWEST DELAY
+	LDR r4, =0x9AAA		; FASTEST DELAY
+	
+	SUB r2, r6, r4		; gets the difference between fastest and slowest delay
 	MOV r1, #5
-	SDIV R7, R7, r1 ; gets 20% of the difference (distance)
-	SUBS R7, R3, R7
-	
-	MOV r1, #4
-	MUL R5, R7, r1 ; gets 80% of the difference used for acceleration
-	SUBS R5, R3, R5
-	
-	LDR r6, =0x9999999	;(SLOWEST DELAY/start and end speed) r6 is what is used by the delay varaible function, loading the slowest delay in to start
-	LDR r4, =0x9AAA	; (FASTEST DELAY/Normal speed) loads the fastest the train goes
-	
-	SUBS r9, r6, r4
-	
-	;get absolute value of r5 20% distance traveled to figure out how many loops will be run for acceleration and deceleration
-	MOV r1, r5
-	CMP R5, #0
-    BGE AbsValue_Obtained  ; If R5 is >= 0, it already holds the positive displacement
-    RSB R1, R5, #0         ; If negative, reverse subtract to get absolute value
-AbsValue_Obtained
-
 	SDIV r9, r9, r1
+	SDIV r9, r2, r9		; stores the amount needed to increment/decrement the delay each loop of accelerate/decelerate
 	
+
 	
 accelerate_train_loop
+	LDR r8, =accelerate_train_loop
 	
 	SUB r6, r9			; decreases the delay, simulating speeding up
 	BL delay_variable ; Delay before compare during actual motor loop
@@ -280,7 +283,8 @@ accelerate_train_loop
 	B accelerate_train_loop 		;loop again
 	
 moving_train_loop
-		
+	LDR r8, =moving_train_loop
+	
 	MOV r6, r4					;makes sure the delay being passed is the normal speed
 	BL delay_variable ; Delay before compare during actual motor loop
     CMP R10, R5               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
@@ -290,9 +294,11 @@ moving_train_loop
 	B moving_train_loop 		;loop again
 	
 decelerate_train_loop
+	LDR r8, =decelerate_train_loop
 	
 	ADD r6, r9			; increases the delay (simulating slowing down
 	BL delay_variable ; Delay before compare during actual motor loop
+	
     CMP R10, R3               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
     BEQ moving_train_looping_end 	; If at station, break out of loop
 	BGT move_train_left			;bigger angle than desired (past the desired station) 
@@ -301,10 +307,10 @@ decelerate_train_loop
 
 move_train_right
 	BL Wheel_moveRight
-	B moving_train_loop
+	BX r8
 move_train_left
 	BL Wheel_moveLeft
-	B moving_train_loop	
+	BX r8
 	
 
 moving_train_looping_end 
@@ -356,7 +362,7 @@ end_close_door
 	ENDP
 ; ----------------------------------------------------------------
 		
-		
+	LTORG  ; Inserted LTORG to ensure literal pool is within range
 		
 	
 ;	------- MOTOR processes
@@ -740,14 +746,15 @@ delayloop_station_stop
 	ENDP
 		
 delay_variable	PROC	;for varaible delays (for acceleration and deceleration)
-	PUSH{LR}
+	PUSH{r6, LR}
 delayloop_varaible 
 	SUBS	r6, #1
 	BNE	delayloop_varaible
-	POP{LR}
+	POP{r6, LR}
 	BX LR
 	
 	ENDP
+
 
 ; RETURNS Pin 1-3 as HIGH depending on voltage
 checkCols PROC
