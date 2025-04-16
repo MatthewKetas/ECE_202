@@ -221,7 +221,7 @@
         <Bp>
           <Number>4</Number>
           <Type>0</Type>
-          <LineNumber>651</LineNumber>
+          <LineNumber>654</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -230,14 +230,14 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\main.s</Filename>
+          <Filename>.\stm32l476xx_constants.s</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>
         <Bp>
           <Number>5</Number>
           <Type>0</Type>
-          <LineNumber>846</LineNumber>
+          <LineNumber>656</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -253,7 +253,7 @@
         <Bp>
           <Number>6</Number>
           <Type>0</Type>
-          <LineNumber>875</LineNumber>
+          <LineNumber>658</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -269,7 +269,7 @@
         <Bp>
           <Number>7</Number>
           <Type>0</Type>
-          <LineNumber>881</LineNumber>
+          <LineNumber>851</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -285,7 +285,7 @@
         <Bp>
           <Number>8</Number>
           <Type>0</Type>
-          <LineNumber>654</LineNumber>
+          <LineNumber>880</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>0</Address>
           <ByteObject>0</ByteObject>
@@ -294,7 +294,7 @@
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>0</BreakIfRCount>
-          <Filename>.\stm32l476xx_constants.s</Filename>
+          <Filename>.\main.s</Filename>
           <ExecCommand></ExecCommand>
           <Expression></Expression>
         </Bp>

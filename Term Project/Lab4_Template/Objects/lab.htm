@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\lab.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\lab.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Wed Apr 16 17:19:32 2025
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6220000: Last Updated: Wed Apr 16 17:40:17 2025
 <BR><P>
 <H3>Maximum Stack Usage =          0 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -467,11 +467,10 @@ Global Symbols
 <LI><a href="#[6b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;identifyButton
 </UL>
 
-<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 364 bytes, Stack size 0 bytes, main.o(main))
+<P><STRONG><a name="[5b]"></a>__main</STRONG> (Thumb, 344 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Calls]<UL><LI><a href="#[75]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART2_Init
 <LI><a href="#[74]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;System_Clock_Init
 <LI><a href="#[73]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;turn_off_LED
-<LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;station_update
 <LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_station_stop
 <LI><a href="#[6a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_3
 <LI><a href="#[69]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;seven_seg_2
@@ -494,8 +493,9 @@ Global Symbols
 <H3>
 Local Symbols
 </H3>
-<P><STRONG><a name="[5f]"></a>Move_Train</STRONG> (Thumb, 182 bytes, Stack size 0 bytes, main.o(main))
-<BR><BR>[Calls]<UL><LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_variable
+<P><STRONG><a name="[5f]"></a>Move_Train</STRONG> (Thumb, 192 bytes, Stack size 0 bytes, main.o(main))
+<BR><BR>[Calls]<UL><LI><a href="#[71]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;station_update
+<LI><a href="#[6e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;delay_variable
 <LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Wheel_moveLeft
 <LI><a href="#[62]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Wheel_moveRight
 <LI><a href="#[61]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Close_door
@@ -620,7 +620,7 @@ Local Symbols
 <P><STRONG><a name="[71]"></a>station_update</STRONG> (Thumb, 42 bytes, Stack size 0 bytes, main.o(main))
 <BR><BR>[Calls]<UL><LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USART2_Write
 </UL>
-<BR>[Called By]<UL><LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__main
+<BR>[Called By]<UL><LI><a href="#[5f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Move_Train
 </UL>
 
 <P><STRONG><a name="[72]"></a>turn_on_LED</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, main.o(main))

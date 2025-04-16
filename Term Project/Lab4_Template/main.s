@@ -192,7 +192,7 @@ __main	PROC
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
 	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 
 Main_Loop 
 	BL delay_station_stop
@@ -201,7 +201,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #67 ;set next station to C
 	BL seven_seg_3
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	
 	BL delay_station_stop
@@ -210,7 +210,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to A
 	BL seven_seg_2
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to B
@@ -218,7 +218,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
 	BL seven_seg_1
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to A
@@ -226,7 +226,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to 
 	BL seven_seg_2
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	B Main_Loop
 	
@@ -239,7 +239,8 @@ Stop
 ;Branch to from main
 Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
-	push {R4, R5, R6, R7, r8, r9, LR}
+	PUSH{LR}
+	push {R4, R5, R6, R7, r8, r9}
 	BL Close_door
 	
 Interrupt_return
@@ -323,13 +324,16 @@ move_train_left
 moving_train_looping_end 
 	
 	BL Open_door
-	pop {R4, R5, R6, R7, r8, r9, LR}
+	pop {R4, R5, R6, R7, r8, r9}
 	
+	; TODO: revise later
 	CMP r3, #1536 ; the station B destination
 	MOVLT r8, #65	; less than station B, current station is A
 	MOVEQ r8, #66	; equal to station B, current station is B
 	MOVGT r8, #67	; greater than station B, current station is C
 	
+	BL station_update
+	POP{LR}
 	BX LR
 	ENDP
 		
@@ -885,15 +889,15 @@ end_interrupt
 		
 		
 station_update PROC
-	CMP r10, #0;
+	CMP r8, #65;
 	LDREQ r0, =station_1_arrive
 	MOVEQ r1, #23; 22 bytes in the msgs in theory
 
-	CMP r10, #1536
+	CMP r8, #66
 	LDREQ r0, =station_2_arrive
 	MOVEQ r1, #23;
 	
-	CMP r10, #3072
+	CMP r8, #67
 	LDREQ r0, =station_3_arrive
 	MOVEQ r1, #23;
 
