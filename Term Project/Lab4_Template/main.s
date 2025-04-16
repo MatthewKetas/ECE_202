@@ -683,27 +683,12 @@ displaykey
 	; 0 1536 or 3072 
 	CMP r2, #10;  checking if button 10 is pressed known as emmergcy button
 	LDREQ r0, =emergency_msg
-<<<<<<< HEAD
-	MOVEQ r1, #40; 41 bytes in memory for the msg in theory
-=======
   
 	MOVEQ r1, #42; 42 bytes in memory for the msg in theory
->>>>>>> 1691ec1223f9636c056bb06fa656297b31966f41
 
 	;check r2 init values later
 	CMP r2, #1; checking for overide to stat 1
 	LDREQ r0, =manual_override_1
-<<<<<<< HEAD
-	MOVEQ r1, #29;   30 bytes of memory for the msg for stats 1,2,3
-
-	CMP r2, #2; checking for overide to stat 2
-	LDREQ r0, =manual_override_2
-	MOVEQ r1, #29;
-
-	CMP r2, #3; checking for overide to stat 3
-	LDREQ r0, =manual_override_3
-	MOVEQ r1, #29;
-=======
 
 	MOVEQ r1, #31;   30 bytes of memory for the msg for stats 1,2,3
 
@@ -714,19 +699,6 @@ displaykey
 	CMP r2, #3; checking for overide to stat 3
 	LDREQ r0, =manual_override_3
 	MOVEQ r1, #31;
-
-	CMP r10, #0;
-	LDREQ r0, =station_1_arrive
-	MOVEQ r1, #23; 22 bytes in the msgs in theory
-
-	CMP r10, #1536
-	LDREQ r0, =station_2_arrive
-	MOVEQ r1, #23;
-	
-	CMP r10, #3072
-	LDREQ r0, =station_3_arrive
-	MOVEQ r1, #23;
->>>>>>> 1691ec1223f9636c056bb06fa656297b31966f41
 	
 	PUSH{r2} ; Save the original value for return - MAY NEED TO PUSH LR HERE TOO
 	BL USART2_Write
@@ -905,17 +877,6 @@ end_interrupt
 station_update PROC
 	CMP r10, #0;
 	LDREQ r0, =station_1_arrive
-<<<<<<< HEAD
-	MOVEQ r1, #21; 22 bytes in the msgs in theory
-
-	CMP r10, #1536
-	LDREQ r0, =station_2_arrive
-	MOVEQ r1, #21;
-	
-	CMP r10, #3072
-	LDREQ r0, =station_3_arrive
-	MOVEQ r1, #21;
-=======
 	MOVEQ r1, #23; 22 bytes in the msgs in theory
 
 	CMP r10, #1536
@@ -925,7 +886,6 @@ station_update PROC
 	CMP r10, #3072
 	LDREQ r0, =station_3_arrive
 	MOVEQ r1, #23;
->>>>>>> 1691ec1223f9636c056bb06fa656297b31966f41
 
 	PUSH{LR}
 	BL USART2_Write
