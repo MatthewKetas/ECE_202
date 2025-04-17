@@ -187,12 +187,13 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
+Override_reset_sequence
 	BL turn_off_LED ; Initialize the LED as being off
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
 	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 
 Main_Loop 
 	BL delay_station_stop
@@ -201,7 +202,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #67 ;set next station to C
 	BL seven_seg_3
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	
 	BL delay_station_stop
@@ -210,7 +211,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to A
 	BL seven_seg_2
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to B
@@ -218,7 +219,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #65 ;set next station to B
 	BL seven_seg_1
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	BL delay_station_stop
 	;Move to A
@@ -226,7 +227,7 @@ Main_Loop
 	BL Move_Train
 	MOV r9, #66 ;set next station to 
 	BL seven_seg_2
-	BL station_update ; Update the station in teraterm
+	;BL station_update ; Update the station in teraterm
 	
 	B Main_Loop
 	
@@ -239,8 +240,11 @@ Stop
 ;Branch to from main
 Move_Train PROC ;uses r3 as the register to move to
 	; 512 cycles (runs of Wheel_move) for 1 full rotation
-	push {R4, R5, R6, R7, r8, r9, LR}
+	PUSH{LR}
+	push {R4, R5, R6, R7, r8, r9}
 	BL Close_door
+	
+Interrupt_return
 	
 	SUBS r7, r10, r3	;r7 will be the register to compare to during acceleration
 	BEQ moving_train_looping_end 
@@ -273,7 +277,12 @@ ABS_Obtained
 accelerate_train_loop
 	LDR r8, =accelerate_train_loop
 	
-	SUB r6, r9			; decreases the delay, simulating speeding up
+	SUBS r6, r9
+	BLE Already_reached_speed			; decreases the delay, simulating speeding up
+	BGT Acceleration_start_delay
+Already_reached_speed
+	MOV r6, r4
+Acceleration_start_delay
 	BL delay_variable ; Delay before compare during actual motor loop
 	
     CMP R10, R7               	; Compare R10 (current cycles of wheels and r3 desitnation cycle of wheels)
@@ -316,13 +325,16 @@ move_train_left
 moving_train_looping_end 
 	
 	BL Open_door
-	pop {R4, R5, R6, R7, r8, r9, LR}
+	pop {R4, R5, R6, R7, r8, r9}
 	
+	; TODO: revise later
 	CMP r3, #1536 ; the station B destination
 	MOVLT r8, #65	; less than station B, current station is A
 	MOVEQ r8, #66	; equal to station B, current station is B
 	MOVGT r8, #67	; greater than station B, current station is C
 	
+	BL station_update
+	POP{LR}
 	BX LR
 	ENDP
 		
@@ -684,21 +696,25 @@ displaykey
 	CMP r2, #10;  checking if button 10 is pressed known as emmergcy button
 	LDREQ r0, =emergency_msg
   
-	MOVEQ r1, #42; 42 bytes in memory for the msg in theory
+	MOVEQ r1, #43; 42 bytes in memory for the msg in theory
 
 	;check r2 init values later
 	CMP r2, #1; checking for overide to stat 1
 	LDREQ r0, =manual_override_1
 
-	MOVEQ r1, #31;   30 bytes of memory for the msg for stats 1,2,3
+	MOVEQ r1, #32;   30 bytes of memory for the msg for stats 1,2,3
 
 	CMP r2, #2; checking for overide to stat 2
 	LDREQ r0, =manual_override_2
-	MOVEQ r1, #31;
+	MOVEQ r1, #32;
 
 	CMP r2, #3; checking for overide to stat 3
 	LDREQ r0, =manual_override_3
-	MOVEQ r1, #31;
+	MOVEQ r1, #32;
+	
+	CMP r2, #4; Manual reset 
+	LDREQ r0, =manual_override_reset
+	MOVEQ r1, #35
 	
 	PUSH{r2} ; Save the original value for return - MAY NEED TO PUSH LR HERE TOO
 	BL USART2_Write
@@ -791,7 +807,8 @@ checkRow PROC
 ; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
 	EXPORT EXTI15_10_IRQHandler
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
-	PUSH {r4, r5, LR}
+	PUSH {r4-r7, r9, LR}
+	;PUSH{r4-r11, LR}
 
 	; Check the pending register
 	LDR r0, =EXTI_BASE
@@ -827,6 +844,11 @@ return_two
 	BEQ go_three
 return_three
 	BEQ station_pressed
+	CMP r0, #4 ; THIS WILL BE THE RESET SEQUENCE
+	MOVEQ r3, #0
+	BEQ reset
+return_reset
+	BEQ reset_sequence
 	BNE no_station_pressed
 	
 go_one
@@ -838,6 +860,9 @@ go_two
 go_three
 	BL seven_seg_3
 	B return_three
+reset
+	BL seven_seg_1
+	B return_reset
 
 station_pressed
 	; Moving the train and doors
@@ -865,27 +890,44 @@ revert_three
 	BL seven_seg_3
 	B end_interrupt
 	
+reset_sequence
+	; Moving the train and doors
+	
+	; BL Move_Train
+	; BL delay_station_stop
+	; BL Close_door
+	;BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	;MOV r9, #66 ;set next station to B
+	
+     LDR r0, =0xE000ED0C ; SCB->AIRCR
+     LDR r1, =0x05FA0004 ; VECTKEY (0x5FA) | SYSRESETREQ bit
+     STR r1, [r0]
+	
+	;B Override_reset_sequence
+	
 no_station_pressed
 	POP{R2}
 	
 end_interrupt
-	POP{r4, r5, LR}
+	LDR r8, =Interrupt_return
+	POP{r4-r7, r9, LR}
+	;POP{r4-r11, LR}
 	BX LR
 	ENDP
 		
 		
 station_update PROC
-	CMP r10, #0;
+	CMP r8, #65;
 	LDREQ r0, =station_1_arrive
-	MOVEQ r1, #23; 22 bytes in the msgs in theory
+	MOVEQ r1, #24; 22 bytes in the msgs in theory
 
-	CMP r10, #1536
+	CMP r8, #66
 	LDREQ r0, =station_2_arrive
-	MOVEQ r1, #23;
+	MOVEQ r1, #24;
 	
-	CMP r10, #3072
+	CMP r8, #67
 	LDREQ r0, =station_3_arrive
-	MOVEQ r1, #23;
+	MOVEQ r1, #24;
 
 	PUSH{LR}
 	BL USART2_Write
@@ -916,6 +958,27 @@ turn_off_LED PROC
 	POP{LR}
 	BX LR
 	ENDP
+
+door_open_tera PROC
+	LDR r0, =door_open_msg
+	MOV r1, #20
+	PUSH {LR}
+	BL USART2_Write
+	POP {LR}
+	BX LR
+	ENDP
+
+door_close_tera PROC
+	LDR r0, =door_close_msg
+	MOV r1, #22
+	PUSH {LR}
+	BL USART2_Write
+	POP {LR}
+	BX LR
+	ENDP
+
+
+door_closed_tera
 		
 	LTORG  ; Inserted LTORG to handle any remaining literal references
 
@@ -924,11 +987,14 @@ turn_off_LED PROC
 	AREA myData, DATA, READWRITE
 	ALIGN
   
-station_1_arrive DCB "Arrived at Station 1\r\n", 0 			; station 1 msg char buffer 20,
-station_2_arrive DCB "Arrived at Station 2\r\n", 0 			; station 2 msg
-station_3_arrive DCB "Arrived at Station 3\r\n", 0 			; station 3 msg
-manual_override_1 DCB "Manual override to station 1\r\n", 0
-manual_override_2 DCB "Manual override to station 2\r\n", 0
-manual_override_3 DCB "Manual override to station 3\r\n", 0
-emergency_msg DCB "ALERT!!! EMERGENCY SWITCH BUTTON PUSHED\r\n", 0
+station_1_arrive DCB "Arrived at Station 1\r\n", 0 			; station 1 msg char buffer 24,
+station_2_arrive DCB "Arrived at Station 2\r\n", 0 			; station 2 msg 24
+station_3_arrive DCB "Arrived at Station 3\r\n", 0 			; station 3 msg 24
+manual_override_1 DCB "Manual override to station 1\r\n", 0 ; 32
+manual_override_2 DCB "Manual override to station 2\r\n", 0 ; 32
+manual_override_3 DCB "Manual override to station 3\r\n", 0 ; 32
+emergency_msg DCB "ALERT!!! EMERGENCY SWITCH BUTTON PUSHED\r\n", 0 ; 43
+manual_override_reset DCB "Manual override reset triggered\r\n", 0 ; 35
+door_open_msg DCB "The Door is open\r\n", 0 ; 20
+door_close_msg DCB "The Door is closed\r\n", 0 ; 22
 	END
