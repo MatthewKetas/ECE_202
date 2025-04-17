@@ -187,6 +187,7 @@ __main	PROC
 
 ; ----------------------------------------------------------------
 ; Move to A
+Override_reset_sequence
 	BL turn_off_LED ; Initialize the LED as being off
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
@@ -711,6 +712,10 @@ displaykey
 	LDREQ r0, =manual_override_3
 	MOVEQ r1, #31;
 	
+	CMP r2, #4; Manual reset 
+	LDREQ r0, =manual_override_reset
+	MOVEQ r1, #34
+	
 	PUSH{r2} ; Save the original value for return - MAY NEED TO PUSH LR HERE TOO
 	BL USART2_Write
 	POP{r2}
@@ -802,7 +807,7 @@ checkRow PROC
 ; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
 	EXPORT EXTI15_10_IRQHandler
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
-	PUSH {r4-r9, LR}
+	PUSH {r4-r7, r9, LR}
 	;PUSH{r4-r11, LR}
 
 	; Check the pending register
@@ -839,6 +844,11 @@ return_two
 	BEQ go_three
 return_three
 	BEQ station_pressed
+	CMP r0, #4 ; THIS WILL BE THE RESET SEQUENCE
+	MOVEQ r3, #0
+	BEQ reset
+return_reset
+	BEQ reset_sequence
 	BNE no_station_pressed
 	
 go_one
@@ -850,6 +860,9 @@ go_two
 go_three
 	BL seven_seg_3
 	B return_three
+reset
+	BL seven_seg_1
+	B return_reset
 
 station_pressed
 	; Moving the train and doors
@@ -877,12 +890,27 @@ revert_three
 	BL seven_seg_3
 	B end_interrupt
 	
+reset_sequence
+	; Moving the train and doors
+	
+	; BL Move_Train
+	; BL delay_station_stop
+	; BL Close_door
+	;BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	;MOV r9, #66 ;set next station to B
+	
+     LDR r0, =0xE000ED0C ; SCB->AIRCR
+     LDR r1, =0x05FA0004 ; VECTKEY (0x5FA) | SYSRESETREQ bit
+     STR r1, [r0]
+	
+	;B Override_reset_sequence
+	
 no_station_pressed
 	POP{R2}
 	
 end_interrupt
-	;LDR r8, =Interrupt_return
-	POP{r4-r9, LR}
+	LDR r8, =Interrupt_return
+	POP{r4-r7, r9, LR}
 	;POP{r4-r11, LR}
 	BX LR
 	ENDP
@@ -945,4 +973,5 @@ manual_override_1 DCB "Manual override to station 1\r\n", 0
 manual_override_2 DCB "Manual override to station 2\r\n", 0
 manual_override_3 DCB "Manual override to station 3\r\n", 0
 emergency_msg DCB "ALERT!!! EMERGENCY SWITCH BUTTON PUSHED\r\n", 0
+manual_override_reset DCB "Manual override reset triggered\r\n", 0
 	END
