@@ -899,11 +899,10 @@ reset_sequence
 	;BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
 	;MOV r9, #66 ;set next station to B
 	
-     LDR r0, =0xE000ED0C ; SCB->AIRCR
-     LDR r1, =0x05FA0004 ; VECTKEY (0x5FA) | SYSRESETREQ bit
-     STR r1, [r0]
-	
-	;B Override_reset_sequence
+    ;LDR r0, =0xE000ED0C ; SCB->AIRCR
+    ;LDR r1, =0x05FA0004 ; VECTKEY (0x5FA) | SYSRESETREQ bit
+    ;STR r1, [r0]
+	LDR r1, =Override_reset_sequence
 	
 no_station_pressed
 	POP{R2}
@@ -912,6 +911,15 @@ end_interrupt
 	LDR r8, =Interrupt_return
 	POP{r4-r7, r9, LR}
 	;POP{r4-r11, LR}
+	
+	LDR r3, =Override_reset_sequence
+	CMP r1, r3
+	
+	BEQ exit_interrupt
+	BX LR
+	
+exit_interrupt
+	STR r1, [sp, #24]
 	BX LR
 	ENDP
 		
