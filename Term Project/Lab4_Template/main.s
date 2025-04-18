@@ -192,7 +192,7 @@ Override_reset_sequence
 	MOV r3, #0 ;move 0 cycle (station A) for r3 to move to station A
 	BL Move_Train
 	MOV r9, #66 ;set next station to B
-	BL seven_seg_2 ; TODO: will need to update later to make on function called display that updates both tera and seven seg using r9-r11
+	BL seven_seg_2 
 	;BL station_update ; Update the station in teraterm
 
 Main_Loop 
@@ -325,7 +325,6 @@ move_train_left
 moving_train_looping_end 
 	pop {R4, R5, R6, R7, r8, r9}
 	
-	; TODO: revise later - IN WORKING ORDER 
 	CMP r3, #1536 ; the station B destination
 	MOVLT r8, #65	; less than station B, current station is A
 	MOVEQ r8, #66	; equal to station B, current station is B
