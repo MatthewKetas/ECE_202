@@ -14,6 +14,11 @@
 ;           http:;www.eece.maine.edu/~zhu/book
 ;*******************************************************************************
 
+; Generative AI and Collaboration Statement:
+;	For this project, generative AI was utilized for understanding Keil debugging prompts / failures. No generative AI was directly used to generate
+; 	code for this project. In addition, our group collaborated with Felipe Correa to understand the pending register for our external interrupt
+;	in order to properly initialize and execute our handler. 
+
 
 	INCLUDE core_cm4_constants.s		; Load Constant Definitions
 	INCLUDE stm32l476xx_constants.s      
@@ -163,16 +168,8 @@ __main	PROC
 	LDR r0, =0xE000E104;  base NVIC reg block  NVIC_ISER1 
 	MOV r1, #0x100;   set bit 8 to enable EXTI lines 15:10
 	STR r1, [r0];
-
-    ; Setting NVIC priority for EXTI_13 to 0 highest priority for non sys
-    
-  ; LDR r1, [r0, #0x328]; NVIC_IPR10
-  ; BIC r1, r1, #0xF0; set bits [7:4] to 0 for prioirty 0
-  ; STR r1, [r0, #0x328];
 	
 ; End of GPIO Setup --------------------------------------------------------------------------------------------------------
-    ;LTORG  ; Inserted LTORG to ensure literal pool is within range - ADD STATEMENT AFTER WHERE CODE SKIPS
-
 	
 	MOV r11, #0 ;intilize the door to 0 angle
 	
