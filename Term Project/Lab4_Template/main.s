@@ -323,11 +323,9 @@ move_train_left
 	
 
 moving_train_looping_end 
-	
-	
 	pop {R4, R5, R6, R7, r8, r9}
 	
-	; TODO: revise later
+	; TODO: revise later - IN WORKING ORDER 
 	CMP r3, #1536 ; the station B destination
 	MOVLT r8, #65	; less than station B, current station is A
 	MOVEQ r8, #66	; equal to station B, current station is B
@@ -340,8 +338,7 @@ moving_train_looping_end
 	ENDP
 		
 		
-;OPEN AND CLOSING DOORS (branch to from move)
-; ----------------------------------------------------------------
+;MOTOR / MOVEMENT PROCESSES -------------------------------------------------------------------------------------
 Open_door PROC
 	push{LR}
 	
@@ -358,7 +355,6 @@ end_open_door
 	BX LR
 	ENDP
 		
-;----------------------------------
 
 Close_door PROC
 	push{LR}
@@ -375,19 +371,16 @@ end_close_door
 	pop {LR}
 	BX LR
 	ENDP
-; ----------------------------------------------------------------
 		
+
 	LTORG  ; Inserted LTORG to ensure literal pool is within range
 		
-	
-;	------- MOTOR processes
 
 Wheel_moveRight PROC     ; Loading the GPIOC Output Register
 	LDR r0, =GPIOC_BASE
 	LDR r1, [r0, #GPIO_ODR]
 	PUSH{LR} ; Push the LR before all of the calls to the delay function
 
-	
 	; Step 1
 	BIC r1, r1, #0xF0 ; Clear
 	ORR r1, r1, #0x90 ; Set
@@ -452,6 +445,7 @@ Wheel_moveLeft PROC
 	POP{LR} ; Pop the pushed address before returning to the branch 
 	BX LR 	
 	ENDP
+
 
 Door_moveRight PROC     
 	LDR r0, =GPIOC_BASE    ; Loading the GPIOC Output Register
@@ -531,9 +525,8 @@ delayloop_motor_left
 	SUBS	r2, #1
 	BNE	delayloop_motor_left
 	BX LR
-	
 	ENDP
-		
+
 
 delay_motor_right	PROC
 	PUSH{LR}
@@ -544,11 +537,10 @@ delayloop_motor_right
 	BNE	delayloop_motor_right
 	POP{LR}
 	BX LR
-	
 	ENDP
+; END OF MOTOR / MOVEMENT PROCESSES -------------------------------------------------------------------------------------
 
-
-
+; 7-SEG PROCESSES -------------------------------------------------------------------------------------------------------
 seven_seg_1 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
@@ -558,8 +550,8 @@ seven_seg_1 PROC
 	BX LR
 	ENDP
 	
-seven_seg_2 PROC
 
+seven_seg_2 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
@@ -568,8 +560,8 @@ seven_seg_2 PROC
 	BX LR
 	ENDP
 	
-seven_seg_3 PROC
 
+seven_seg_3 PROC
 	LDR r0, =GPIOA_BASE ; Loading base register
 	LDR r1, [r0, #GPIO_ODR]
 	BIC r1, r1, #0xF00;		clear pins 11 10 9 8
@@ -577,10 +569,9 @@ seven_seg_3 PROC
 	STR r1, [r0, #GPIO_ODR] ; Offsetting the base register to access the ODR
 	BX LR
 	ENDP
+; END OF 7-SEG PROCESSES -------------------------------------------------------------------------------------------------------
 
-
-; Keypad functions and subfunctions
-
+; KEYPAD AND DELAY PROCESSES ---------------------------------------------------------------------------------------------------
 ; Returns button 0-9 (* = 10 AND # = 11) - only returns once a button has been pressed, it remains in the main loop otherwise
 identifyButton	PROC
 	PUSH{r3, r5, r6, r8, r9, r10, r11, LR} ; Push all of the registers that are utilized here
@@ -728,8 +719,6 @@ displaykey
 	ENDP		
 
 
-; END OF IDENTIFY BUTTON PROCESS -------------------------------------------------------------------------------------------
-		
 delay	PROC
 	PUSH{LR}
 	; Delay for software debouncing
@@ -742,6 +731,7 @@ delayloop
 	
 	ENDP
 	
+
 delay_station_stop	PROC
 	PUSH{LR}
 	; Delay for software debouncing
@@ -751,9 +741,9 @@ delayloop_station_stop
 	BNE	delayloop_station_stop
 	POP{LR}
 	BX LR
-	
 	ENDP
 		
+
 delay_variable	PROC	;for varaible delays (for acceleration and deceleration)
 	PUSH{r6, LR}
 delayloop_varaible 
@@ -761,7 +751,6 @@ delayloop_varaible
 	BNE	delayloop_varaible
 	POP{r6, LR}
 	BX LR
-	
 	ENDP
 
 
@@ -802,12 +791,12 @@ checkRow PROC
 	POP{LR}
 	BX LR
 	ENDP
-
 	
 	LTORG ; Flush out literal pool before interrupt handler
+; END OF KEYPAD AND DELAY PROCESSES -------------------------------------------------------------------------------------------------------------
 
 
-; INTERRUPT HANDLER ---------------------------------------------------------------------------------------------
+; INTERRUPT HANDLER AND ASSOCIATED UPDATES ---------------------------------------------------------------------------------------------
 	EXPORT EXTI15_10_IRQHandler
 EXTI15_10_IRQHandler PROC ; Help recieved from Felipe Correa with constants and pending register
 	PUSH {r4-r7, r9, LR}
@@ -854,13 +843,34 @@ return_reset
 	BNE no_station_pressed
 	
 go_one
+	LDR r0, =GPIOA_BASE ; Loading base register
+	LDR r1, [r0, #GPIO_ODR] ; Keeping the ODR in r2
+	CMP r1, #0x100
+	BNE no_blink_one
+	BL blink_twice
+no_blink_one
 	BL seven_seg_1
+	CMP r0, r0 ; Reset the flags
 	B return_one
 go_two
+	LDR r0, =GPIOA_BASE ; Loading base register
+	LDR r1, [r0, #GPIO_ODR] ; Keeping the ODR in r2
+	CMP r1, #0x200
+	BNE no_blink_two
+	BL blink_twice
+no_blink_two
 	BL seven_seg_2
+	CMP r0, r0 ; Reset the flags
 	B return_two
 go_three
+	LDR r0, =GPIOA_BASE ; Loading base register
+	LDR r1, [r0, #GPIO_ODR] ; Keeping the ODR in r2
+	CMP r1, #0x300
+	BNE no_blink_three
+	BL blink_twice
+no_blink_three
 	BL seven_seg_3
+	CMP r0, r0 ; Reset the flags
 	B return_three
 reset
 	BL seven_seg_1
@@ -933,8 +943,9 @@ station_update PROC
 	POP{LR}
 	BX LR
 	ENDP
+; END OF INTERRUPT HANDLER AND ASSOCIATED UPDATES ---------------------------------------------------------------------
 
-
+; LED PROCESSES --------------------------------------------------------------------------------------------------------
 turn_on_LED PROC
 	PUSH{LR}
 	; Load the ODR from GPIOA 0x20 (PA5)
@@ -947,6 +958,7 @@ turn_on_LED PROC
 	BX LR
 	ENDP
 		
+
 turn_off_LED PROC
 	PUSH{LR}
 	; Load the ODR from GPIOA 0x20 (PA5)
@@ -958,6 +970,22 @@ turn_off_LED PROC
 	BX LR
 	ENDP
 
+
+blink_twice PROC
+	PUSH {LR}
+	BL turn_on_LED
+	BL delay_station_stop
+	BL turn_off_LED
+	BL delay_station_stop
+	BL turn_on_LED
+	BL delay_station_stop
+	BL turn_off_LED
+	POP {LR}
+	BX LR
+	ENDP
+; END OF LED PROCESSES -------------------------------------------------------------------------------------------------
+
+; DOOR MESSAGE PROCESSES -----------------------------------------------------------------------------------------------
 door_open_tera PROC
 	PUSH {LR, r0, r1, r2, r3}
 	LDR r0, =door_open_msg
@@ -967,6 +995,7 @@ door_open_tera PROC
 	BX LR
 	ENDP
 
+
 door_close_tera PROC
 	PUSH {LR, r0, r1, r2, r3}
 	LDR r0, =door_close_msg
@@ -975,10 +1004,8 @@ door_close_tera PROC
 	POP {LR, r0, r1, r2, r3}
 	BX LR
 	ENDP
+; END OF DOOR MESSAGE PROCESSES -----------------------------------------------------------------------------------------------
 
-
-door_closed_tera
-		
 	LTORG  ; Inserted LTORG to handle any remaining literal references
 
 	ALIGN			
