@@ -1,4 +1,8 @@
-# Pinout Assignments for Project
+# Pinout Assignments for Project / General Readme
+
+## Files Edited:
+1. The C code of the provided uart.c function was edited to print our messages.
+2. All assembly code for the project is contained in main.s where LTORG statements are utilized to flush literals out from flash memory to ensure that it can be flashed to the board. All of the main code for the project and its operation was written in raw arm assembly and can be found in this file.
 
 ## GPIOA - INPUT
 Keypad input: 3, 2, 1 \
